@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: dreamapp-api
+    runtime: docker
+    rootDir: sleep-analysis-dreamapp-api
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: AI_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: AI_MODEL
+        value: openai/gpt-oss-20b
+      - key: AI_API_KEY
+        sync: false
+      - key: FUNCTIONS_INTERNAL_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://*.onrender.com
+      - key: ENVIRONMENT
+        value: production
+      - key: WEBSOCKETS_ENABLED
+        value: "false"
+      - key: FIREBASE_PROJECT_ID
+        value: dream-34ed4
+      - key: FIREBASE_FUNCTIONS_URL
+        value: https://us-central1-dream-34ed4.cloudfunctions.net/
+      - key: DB_ENABLED
+        value: "false"

@@ -1,0 +1,17 @@
+.idea/
+.gradle/
+**/build/
+**/node_modules/
+**/.kotlin/
+*.env
+.env*
+!*.env.example
+*.jks
+*.keystore
+*.p12
+*.pem
+serviceAccountKey.json
+**/serviceAccountKey.json
+local.properties
+*.log
+
