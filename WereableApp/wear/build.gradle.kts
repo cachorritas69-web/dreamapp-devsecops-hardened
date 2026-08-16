@@ -42,7 +42,7 @@ android {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.0")
-    implementation("androidx.health:health-services-client:1.1.0-alpha04")
+    implementation("androidx.health:health-services-client:1.1.0-rc02")
     implementation("androidx.compose.material:material-icons-extended:1.6.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
