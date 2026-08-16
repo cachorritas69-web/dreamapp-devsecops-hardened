@@ -47,7 +47,7 @@ dependencies {
     // =========================
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1") // Core JSON support
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.1") // Kotlin module for Jackson
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1") // Java time support
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.1") // Java time support
 
     // =========================
     // Firebase & Firestore
