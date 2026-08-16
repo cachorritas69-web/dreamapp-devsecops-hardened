@@ -40,7 +40,7 @@ dependencies {
     // =========================
     implementation("org.slf4j:slf4j-api:2.0.13") // Logging API
     implementation("org.slf4j:slf4j-simple:2.0.16") // Simple SLF4J backend (optional if using logback)
-    runtimeOnly("ch.qos.logback:logback-classic:1.4.14") // Logback backend for SLF4J
+    runtimeOnly("ch.qos.logback:logback-classic:1.6.2") // Logback backend for SLF4J
 
     // =========================
     // JSON Serialization
