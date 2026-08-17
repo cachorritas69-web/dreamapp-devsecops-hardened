@@ -2,6 +2,8 @@
 .gradle/
 **/build/
 **/node_modules/
+**/dist/
+**/*.tsbuildinfo
 **/.kotlin/
 *.env
 .env*
@@ -14,4 +16,3 @@ serviceAccountKey.json
 **/serviceAccountKey.json
 local.properties
 *.log
-

@@ -36,7 +36,7 @@ class UserAccountRepositoryImpl : UserAccountRepository {
         val qry = queryOf("""
             INSERT INTO USER_ACCOUNT(ID, USERNAME, FIRSTNAME, LASTNAME, USER_PASSWORD,
               USER_ROLES, MOBILE_PHONE, PHONE_OFFICE, PHONE_EXT, EMAIL, IS_ACTIVE)
-            VALUES (CHAR_TO_UUID(:id), :userName, :firstName, :lastName, :password, :rolesToString, :mobilePhone,
+            VALUES (CAST(:id AS UUID), :userName, :firstName, :lastName, :password, :rolesToString, :mobilePhone,
                 :phoneOffice, :phoneExt, :email, :active)""".trimIndent(), accMap)
         var result = "failed"
         sessionOf(AuthDataSource.get()).use {
@@ -71,7 +71,7 @@ class UserAccountRepositoryImpl : UserAccountRepository {
                 PHONE_EXT = :phoneExt,
                 EMAIL = :email, 
                 IS_ACTIVE = :active
-            WHERE ID = CHAR_TO_UUID(:id)""".trimIndent(), accMap)
+            WHERE ID = CAST(:id AS UUID)""".trimIndent(), accMap)
         var result = "failed"
         sessionOf(AuthDataSource.get()).use {
             try {
@@ -84,7 +84,7 @@ class UserAccountRepositoryImpl : UserAccountRepository {
     }
 
     override fun delete(uuid: String): String {
-        val qry = queryOf("DELETE FROM USER_ACCOUNT WHERE ID = CHAR_TO_UUID(?)", uuid)
+        val qry = queryOf("DELETE FROM USER_ACCOUNT WHERE ID = CAST(? AS UUID)", uuid)
         var result: String
         sessionOf(AuthDataSource.get()).use {
             result = if (it.run(qry.asUpdate) > 0) "success" else "failed"
@@ -94,7 +94,7 @@ class UserAccountRepositoryImpl : UserAccountRepository {
 
     override fun getAll(where: String): List<UserAccount> {
         val qry = queryOf("""
-        SELECT UUID_TO_CHAR(ID) ID, USERNAME, FIRSTNAME, LASTNAME, USER_ROLES, MOBILE_PHONE, PHONE_OFFICE,
+        SELECT CAST(ID AS VARCHAR) AS "ID", USERNAME, FIRSTNAME, LASTNAME, USER_ROLES, MOBILE_PHONE, PHONE_OFFICE,
             PHONE_EXT, EMAIL, IS_ACTIVE
         FROM USER_ACCOUNT
         $where
@@ -109,10 +109,10 @@ class UserAccountRepositoryImpl : UserAccountRepository {
 
     override fun getByUUID(uuid: String): UserAccount? {
         val qry = queryOf("""
-            SELECT UUID_TO_CHAR(ID) ID, USERNAME, FIRSTNAME, LASTNAME, USER_ROLES, MOBILE_PHONE, PHONE_OFFICE,
+            SELECT CAST(ID AS VARCHAR) AS "ID", USERNAME, FIRSTNAME, LASTNAME, USER_ROLES, MOBILE_PHONE, PHONE_OFFICE,
                 PHONE_EXT, EMAIL, IS_ACTIVE
             FROM USER_ACCOUNT
-            WHERE ID = CHAR_TO_UUID(?)""".trimIndent(), uuid)
+            WHERE ID = CAST(? AS UUID)""".trimIndent(), uuid)
             .map { row -> toUser(row) }.asSingle
         val account: UserAccount
         sessionOf(AuthDataSource.get()).use {
@@ -122,10 +122,10 @@ class UserAccountRepositoryImpl : UserAccountRepository {
     }
 
     override fun userInfoBy(type: String, param: String): UserInfo {
-        val where = if (type == "ID") "WHERE ID = CHAR_TO_UUID(?)" else "WHERE USERNAME = ?"
+        val where = if (type == "ID") "WHERE ID = CAST(? AS UUID)" else "WHERE USERNAME = ?"
         val qry = queryOf("""
-            SELECT UUID_TO_CHAR(ID) ID, USERNAME, FIRSTNAME, LASTNAME, USER_PASSWORD,
-                USER_ROLES, IS_ACTIVE, CURRENT_DATE
+            SELECT CAST(ID AS VARCHAR) AS "ID", USERNAME, FIRSTNAME, LASTNAME, USER_PASSWORD,
+                USER_ROLES, IS_ACTIVE, TO_CHAR(CURRENT_DATE, 'YYYY-MM-DD') AS "CURRENT_DATE"
             FROM USER_ACCOUNT
             $where""".trimIndent(), param)
             .map { row -> UserInfo(

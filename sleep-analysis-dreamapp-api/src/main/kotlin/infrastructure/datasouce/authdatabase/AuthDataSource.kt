@@ -5,6 +5,10 @@ import com.zaxxer.hikari.HikariDataSource
 import org.slf4j.LoggerFactory
 import team.dreamapp.com.infrastructure.config.Config
 import java.sql.Connection
+import java.net.URI
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
+import org.mindrot.jbcrypt.BCrypt
 import javax.sql.DataSource
 
 /**
@@ -23,17 +27,87 @@ object AuthDataSource {
      * Must be called before using `get()` or `isConnectionHealthy()`.
      */
     fun init() {
+        val connection = resolveConnection()
         val config = HikariConfig().apply {
-            jdbcUrl = Config.SVR_AUTH_CONF.dbURL
-            username = Config.SVR_AUTH_CONF.dbUser
-            password = Config.SVR_AUTH_CONF.dbPwd
-            maximumPoolSize = 10
+            jdbcUrl = connection.jdbcUrl
+            username = connection.username
+            password = connection.password
+            maximumPoolSize = 5
+            minimumIdle = 1
+            connectionTimeout = 10_000
+            validationTimeout = 3_000
             isAutoCommit = true
-            transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+            transactionIsolation = "TRANSACTION_READ_COMMITTED"
         }
 
         dataSource = HikariDataSource(config)
-        logger.info("[OK] AuthDataSource initialized with URL: ${Config.SVR_AUTH_CONF.dbURL}")
+        migrate()
+        logger.info("[OK] PostgreSQL authentication database initialized")
+    }
+
+    private data class ConnectionSettings(val jdbcUrl: String, val username: String, val password: String)
+
+    private fun resolveConnection(): ConnectionSettings {
+        val databaseUrl = System.getenv("DATABASE_URL")?.trim().orEmpty()
+        if (databaseUrl.isBlank()) {
+            return ConnectionSettings(Config.SVR_AUTH_CONF.dbURL, Config.SVR_AUTH_CONF.dbUser, Config.SVR_AUTH_CONF.dbPwd)
+        }
+        val normalized = databaseUrl.replaceFirst("postgres://", "postgresql://")
+        val uri = URI(normalized)
+        require(uri.scheme == "postgresql" && !uri.host.isNullOrBlank()) { "DATABASE_URL must be a PostgreSQL URL" }
+        val credentials = uri.rawUserInfo?.split(':', limit = 2).orEmpty()
+        require(credentials.size == 2) { "DATABASE_URL must include database credentials" }
+        val user = URLDecoder.decode(credentials[0], StandardCharsets.UTF_8)
+        val password = URLDecoder.decode(credentials[1], StandardCharsets.UTF_8)
+        val port = if (uri.port > 0) uri.port else 5432
+        val query = uri.rawQuery?.let { "?$it" }.orEmpty()
+        return ConnectionSettings("jdbc:postgresql://${uri.host}:$port${uri.rawPath}$query", user, password)
+    }
+
+    private fun migrate() {
+        dataSource.connection.use { connection ->
+            connection.createStatement().use { statement ->
+                statement.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS user_account (
+                        id UUID PRIMARY KEY,
+                        username VARCHAR(80) NOT NULL UNIQUE,
+                        firstname VARCHAR(100) NOT NULL,
+                        lastname VARCHAR(100) NOT NULL,
+                        user_password VARCHAR(100) NOT NULL,
+                        user_roles VARCHAR(200) NOT NULL,
+                        mobile_phone VARCHAR(30) NOT NULL DEFAULT '',
+                        phone_office VARCHAR(30) NOT NULL DEFAULT '',
+                        phone_ext VARCHAR(15) NOT NULL DEFAULT '',
+                        email VARCHAR(254) NOT NULL DEFAULT '',
+                        is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                        created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    )
+                """.trimIndent())
+            }
+            seedAdministrator(connection)
+        }
+    }
+
+    private fun seedAdministrator(connection: Connection) {
+        val username = System.getenv("BOOTSTRAP_ADMIN_USERNAME")?.trim().orEmpty()
+        val password = System.getenv("BOOTSTRAP_ADMIN_PASSWORD").orEmpty()
+        if (username.isBlank() || password.isBlank()) return
+        require(password.length >= 12) { "BOOTSTRAP_ADMIN_PASSWORD must contain at least 12 characters" }
+        val accountCount = connection.createStatement().use { statement ->
+            statement.executeQuery("SELECT COUNT(*) FROM user_account").use { result -> result.next(); result.getInt(1) }
+        }
+        if (accountCount > 0) return
+        connection.prepareStatement("""
+            INSERT INTO user_account (
+                id, username, firstname, lastname, user_password, user_roles,
+                mobile_phone, phone_office, phone_ext, email, is_active
+            ) VALUES (gen_random_uuid(), ?, 'DreamApp', 'Administrator', ?, 'SysAdmin,Admin', '', '', '', '', TRUE)
+        """.trimIndent()).use { statement ->
+            statement.setString(1, username)
+            statement.setString(2, BCrypt.hashpw(password, BCrypt.gensalt(12)))
+            statement.executeUpdate()
+        }
+        logger.info("[OK] Initial administrator created")
     }
 
     /**

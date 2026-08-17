@@ -70,7 +70,7 @@ dependencies {
     // =========================
     // Database Connectivity & ORM
     // =========================
-    implementation("org.firebirdsql.jdbc:jaybird:6.0.2") // JDBC driver for Firebird databases
+    implementation("org.postgresql:postgresql:42.7.13") // PostgreSQL JDBC driver
     implementation("com.zaxxer:HikariCP:6.3.0") // High-performance JDBC connection pool
     implementation("com.github.seratch:kotliquery:1.9.1") // Lightweight SQL and JDBC wrapper for Kotlin
     implementation("de.svenkubiak:jBCrypt:0.4.3") // Library for BCrypt password hashing
