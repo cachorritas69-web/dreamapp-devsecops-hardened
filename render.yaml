@@ -2,6 +2,7 @@ services:
   - type: web
     name: dreamapp-api
     runtime: docker
+    plan: free
     rootDir: sleep-analysis-dreamapp-api
     dockerfilePath: ./Dockerfile
     healthCheckPath: /health
