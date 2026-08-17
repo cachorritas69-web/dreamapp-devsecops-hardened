@@ -39,7 +39,7 @@ services:
     runtime: static
     rootDir: dreamapp-web
     buildCommand: pnpm install --frozen-lockfile && pnpm build
-    staticPublishPath: ./dreamapp-web/dist
+    staticPublishPath: ./dist
     envVars:
       - key: VITE_API_URL
         value: https://dreamapp-api.onrender.com
