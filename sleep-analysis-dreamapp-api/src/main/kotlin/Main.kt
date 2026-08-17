@@ -17,6 +17,7 @@ import team.dreamapp.com.presentation.controller.sleep.SleepAiController
 import team.dreamapp.com.presentation.controller.sleep.SleepStatsController
 import team.dreamapp.com.presentation.controller.sleep.SleepStateController
 import team.dreamapp.com.presentation.controller.users.UserController
+import team.dreamapp.com.presentation.controller.subscription.SubscriptionController
 import team.dreamapp.com.presentation.security.RequestSecurity
 
 /**
@@ -130,6 +131,10 @@ fun main() {
             path("ai") {
                 get("recommendation", SleepAiController::getRecommendation, Role.SYSADMIN, Role.ADMIN, Role.CLIENT)
                 get("predictions-next-month-efficiency", SleepAiController::predictEfficiencyNextMonth, Role.SYSADMIN, Role.ADMIN, Role.CLIENT)
+            }
+            path("subscription") {
+                get(SubscriptionController::current, Role.SYSADMIN, Role.ADMIN, Role.CLIENT)
+                patch(SubscriptionController::update, Role.SYSADMIN, Role.ADMIN, Role.CLIENT)
             }
         }
     }.exception(ValidationException::class.java) { e, ctx ->

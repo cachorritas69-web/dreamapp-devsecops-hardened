@@ -80,9 +80,11 @@ object AuthDataSource {
                         phone_ext VARCHAR(15) NOT NULL DEFAULT '',
                         email VARCHAR(254) NOT NULL DEFAULT '',
                         is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                        subscription_plan VARCHAR(20) NOT NULL DEFAULT 'FREE',
                         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
                     )
                 """.trimIndent())
+                statement.executeUpdate("ALTER TABLE user_account ADD COLUMN IF NOT EXISTS subscription_plan VARCHAR(20) NOT NULL DEFAULT 'FREE'")
             }
             seedAdministrator(connection)
         }
