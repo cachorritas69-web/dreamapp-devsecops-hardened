@@ -4,19 +4,18 @@ import {
   ApiError,
   api,
   type Prediction,
-  type Role,
   type SleepStats,
   type User,
   type UserInfo,
 } from "./api";
-type View = "overview" | "patients" | "analysis" | "subscription" | "about";
+type View = "overview" | "analysis" | "subscription" | "about";
 const Logo = () => (
   <div className="logo" aria-hidden="true">
     ☾
   </div>
 );
 
-function Landing({ enter }: { enter: () => void }) {
+function Landing({ enter, register }: { enter: () => void; register: () => void }) {
   return (
     <main className="landing">
       <nav className="topnav">
@@ -31,6 +30,7 @@ function Landing({ enter }: { enter: () => void }) {
           <button className="button ghost" onClick={enter}>
             Ingresar
           </button>
+          <button className="button primary" onClick={register}>Crear cuenta</button>
         </div>
       </nav>
       <section className="hero" id="inicio">
@@ -49,6 +49,7 @@ function Landing({ enter }: { enter: () => void }) {
             <button className="button primary" onClick={enter}>
               Abrir mi panel →
             </button>
+            <button className="button ghost" onClick={register}>Crear cuenta gratis</button>
             <a href="#como">Descubrir cómo funciona</a>
           </div>
           <div className="trust">
@@ -184,7 +185,6 @@ function Login({
 }) {
   const [userName, setUser] = useState("");
   const [password, setPass] = useState("");
-  const [role, setRole] = useState<Role>("Admin");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [online, setOnline] = useState<boolean | null>(null);
@@ -199,7 +199,7 @@ function Login({
     setError("");
     setBusy(true);
     try {
-      success((await api.login(userName.trim(), password, role)).data);
+      success((await api.login(userName.trim(), password)).data);
     } catch (err) {
       setError(
         err instanceof ApiError && err.status === 401
@@ -268,17 +268,6 @@ function Login({
             placeholder="••••••••"
           />
         </label>
-        <label>
-          Perfil
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value as Role)}
-          >
-            <option value="Admin">Especialista / Admin</option>
-            <option value="SysAdmin">Administrador del sistema</option>
-            <option value="Cliente">Paciente</option>
-          </select>
-        </label>
         {error && (
           <div className="error" role="alert">
             {error}
@@ -293,6 +282,45 @@ function Login({
       </form>
     </main>
   );
+}
+
+function Register({ back, done }: { back: () => void; done: () => void }) {
+  const [step, setStep] = useState<"details" | "code">("details");
+  const [form, setForm] = useState({ firstName: "", lastName: "", userName: "", email: "", password: "" });
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function submitDetails(e: FormEvent) {
+    e.preventDefault(); setBusy(true); setError(""); setMessage("");
+    try { const result = await api.register(form); setMessage(result.message); setStep("code"); }
+    catch (err) { setError(err instanceof Error ? err.message : "No se pudo crear la cuenta."); }
+    finally { setBusy(false); }
+  }
+  async function submitCode(e: FormEvent) {
+    e.preventDefault(); setBusy(true); setError("");
+    try { await api.verify(form.email, code); done(); }
+    catch (err) { setError(err instanceof Error ? err.message : "No se pudo verificar el código."); }
+    finally { setBusy(false); }
+  }
+  return <main className="auth-page register-page">
+    <button className="back" onClick={back}>← Volver</button>
+    <section className="auth-intro"><Logo/><div className="eyebrow">TU CUENTA PERSONAL</div><h1>Tus métricas, solo para ti.</h1><p>Crea tu cuenta y confirma tu correo. Cada persona accede exclusivamente a su propio historial de sueño.</p><div className="privacy"><b>◉ Privacidad desde el registro</b><span>El código caduca en 10 minutos y nunca almacenamos el código original.</span></div></section>
+    {step === "details" ? <form className="auth-card" onSubmit={submitDetails}>
+      <h2>Crear cuenta</h2><p>Todos los campos son obligatorios.</p>
+      <div className="field-pair"><label>Nombre<input value={form.firstName} onChange={e=>setForm({...form,firstName:e.target.value})} required minLength={2} maxLength={100}/></label><label>Apellido<input value={form.lastName} onChange={e=>setForm({...form,lastName:e.target.value})} required minLength={2} maxLength={100}/></label></div>
+      <label>Usuario<input autoComplete="username" value={form.userName} onChange={e=>setForm({...form,userName:e.target.value})} required minLength={3} maxLength={40} pattern="[A-Za-z0-9._-]+"/></label>
+      <label>Correo electrónico<input type="email" autoComplete="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} required maxLength={254}/></label>
+      <label>Contraseña<input type="password" autoComplete="new-password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})} required minLength={10} maxLength={72}/><small className="field-help">10 caracteres, mayúscula, minúscula y número.</small></label>
+      {error&&<div className="error" role="alert">{error}</div>}<button className="button primary wide" disabled={busy}>{busy?"Enviando…":"Enviar código →"}</button>
+    </form> : <form className="auth-card verify-card" onSubmit={submitCode}>
+      <div className="mail-icon">✉</div><h2>Revisa tu correo</h2><p>{message}<br/><b>{form.email}</b></p>
+      <label>Código de 6 dígitos<input className="code-input" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,"").slice(0,6))} required pattern="\d{6}" maxLength={6}/></label>
+      {error&&<div className="error" role="alert">{error}</div>}
+      <button className="button primary wide" disabled={busy||code.length!==6}>{busy?"Verificando…":"Verificar y crear cuenta"}</button>
+      <button type="button" className="text-button" onClick={()=>setStep("details")}>Cambiar datos o reenviar código</button>
+    </form>}
+  </main>;
 }
 
 function Chart({
@@ -341,30 +369,16 @@ function Chart({
 
 function Dashboard({ session, exit }: { session: UserInfo; exit: () => void }) {
   const [view, setView] = useState<View>("overview"),
-    [users, setUsers] = useState<User[]>([]),
-    [selected, setSelected] = useState(""),
+    [users] = useState<User[]>([{ uidUser: session.id, username: session.fullname || session.userName, weightKg: 0, heightCm: 0, age: 0, sex: "" }]),
+    [selected] = useState(session.id),
     [stats, setStats] = useState<SleepStats | null>(null),
     [prediction, setPrediction] = useState<Prediction[]>([]),
     [advice, setAdvice] = useState(""),
     [plan, setPlan] = useState("FREE"),
     [planMessage, setPlanMessage] = useState(""),
     [planBusy, setPlanBusy] = useState(false),
-    [busy, setBusy] = useState(true),
+    [busy] = useState(false),
     [error, setError] = useState("");
-  useEffect(() => {
-    api
-      .users()
-      .then((d) => {
-        setUsers(d);
-        if (d[0]) setSelected(d[0].uidUser);
-      })
-      .catch((e) =>
-        setError(
-          e instanceof Error ? e.message : "No se pudieron cargar usuarios.",
-        ),
-      )
-      .finally(() => setBusy(false));
-  }, []);
   useEffect(() => {
     api.subscription().then((result) => setPlan(result.plan)).catch(() => undefined);
   }, []);
@@ -424,7 +438,6 @@ function Dashboard({ session, exit }: { session: UserInfo; exit: () => void }) {
           {(
             [
               ["overview", "⌂", "Resumen"],
-              ["patients", "♙", "Pacientes"],
               ["analysis", "⌁", "Análisis IA"],
               ["subscription", "◇", "Suscripción"],
               ["about", "◉", "Sistema"],
@@ -460,30 +473,13 @@ function Dashboard({ session, exit }: { session: UserInfo; exit: () => void }) {
             <h1>
               {view === "overview"
                 ? "Resumen del sueño"
-                : view === "patients"
-                  ? "Pacientes"
-                  : view === "analysis"
+                : view === "analysis"
                     ? "Análisis inteligente"
                     : view === "subscription"
                       ? "Mejorar suscripción"
                       : "Estado del sistema"}
             </h1>
           </div>
-          {users.length > 0 && !["about","subscription"].includes(view) && (
-            <label className="selector">
-              <span>Paciente</span>
-              <select
-                value={selected}
-                onChange={(e) => setSelected(e.target.value)}
-              >
-                {users.map((u) => (
-                  <option value={u.uidUser} key={u.uidUser}>
-                    {u.username}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
         </header>
         {error && <div className="error">{error}</div>}
         {busy ? (
@@ -575,44 +571,6 @@ function Dashboard({ session, exit }: { session: UserInfo; exit: () => void }) {
               </article>
             </section>
           </>
-        ) : view === "patients" ? (
-          <section className="patient-grid">
-            {users.length ? (
-              users.map((u) => (
-                <article
-                  key={u.uidUser}
-                  className={selected === u.uidUser ? "selected" : ""}
-                  onClick={() => setSelected(u.uidUser)}
-                >
-                  <div className="avatar large">{u.username[0]}</div>
-                  <div>
-                    <h3>{u.username}</h3>
-                    <p>
-                      {u.age} años · {u.sex}
-                    </p>
-                    <span>
-                      {u.weightKg} kg · {u.heightCm} cm
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setSelected(u.uidUser);
-                      setView("overview");
-                    }}
-                  >
-                    Ver panel →
-                  </button>
-                </article>
-              ))
-            ) : (
-              <div className="empty">
-                <b>No hay pacientes disponibles</b>
-                <p>
-                  Los usuarios sincronizados desde Firebase aparecerán aquí.
-                </p>
-              </div>
-            )}
-          </section>
         ) : view === "analysis" ? (
           <section className="analysis-grid">
             <article className="panel prediction">
@@ -738,11 +696,12 @@ function minutes(v?: number) {
   return v === undefined ? "—" : `${Math.floor(v / 60)}h ${v % 60}m`;
 }
 export default function App() {
-  const [screen, setScreen] = useState<"landing" | "login" | "dashboard">(
+  const [screen, setScreen] = useState<"landing" | "login" | "register" | "dashboard">(
       "landing",
     ),
     [session, setSession] = useState<UserInfo | null>(null);
-  if (screen === "landing") return <Landing enter={() => setScreen("login")} />;
+  if (screen === "landing") return <Landing enter={() => setScreen("login")} register={() => setScreen("register")} />;
+  if (screen === "register") return <Register back={() => setScreen("landing")} done={() => setScreen("login")} />;
   if (screen === "login" || !session)
     return (
       <Login

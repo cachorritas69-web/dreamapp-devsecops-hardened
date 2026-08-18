@@ -1,7 +1,6 @@
 export const API_URL = (
   import.meta.env.VITE_API_URL || "https://dreamapp-api.onrender.com"
 ).replace(/\/$/, "");
-export type Role = "Admin" | "SysAdmin" | "Cliente";
 export interface UserInfo {
   id: string;
   userName: string;
@@ -87,18 +86,22 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 export const api = {
   health: () => request<{ status: string }>("/health"),
-  login: async (userName: string, password: string, role: Role) => {
+  login: async (userName: string, password: string) => {
     const result = await request<{
       success: boolean;
       data: UserInfo;
       token: string;
     }>("/auth/login", {
       method: "POST",
-      body: JSON.stringify({ userName, password, role }),
+      body: JSON.stringify({ userName, password }),
     });
     sessionStorage.setItem(TOKEN_KEY, result.token);
     return result;
   },
+  register: (payload: { firstName: string; lastName: string; userName: string; email: string; password: string }) =>
+    request<{ success: boolean; message: string }>("/auth/register", { method: "POST", body: JSON.stringify(payload) }),
+  verify: (email: string, code: string) =>
+    request<{ success: boolean; message: string }>("/auth/verify", { method: "POST", body: JSON.stringify({ email, code }) }),
   logout: () =>
     request<{ success: boolean }>("/auth/logout", { method: "POST" }).finally(
       clearSession,

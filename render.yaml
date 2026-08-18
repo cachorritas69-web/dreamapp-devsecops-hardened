@@ -29,10 +29,16 @@ services:
         value: "true"
       - key: DATABASE_URL
         sync: false
-      - key: BOOTSTRAP_ADMIN_USERNAME
-        value: admin
-      - key: BOOTSTRAP_ADMIN_PASSWORD
+      - key: SMTP_USERNAME
         sync: false
+      - key: SMTP_APP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: EMAIL_VERIFICATION_SECRET
+        generateValue: true
+      - key: PUBLIC_WEB_URL
+        value: https://dreamapp-sleep-web.onrender.com
 
   - type: web
     name: dreamapp-sleep-web

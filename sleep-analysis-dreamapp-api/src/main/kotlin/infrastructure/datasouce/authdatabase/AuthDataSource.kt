@@ -8,7 +8,6 @@ import java.sql.Connection
 import java.net.URI
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import org.mindrot.jbcrypt.BCrypt
 import javax.sql.DataSource
 
 /**
@@ -81,35 +80,31 @@ object AuthDataSource {
                         email VARCHAR(254) NOT NULL DEFAULT '',
                         is_active BOOLEAN NOT NULL DEFAULT TRUE,
                         subscription_plan VARCHAR(20) NOT NULL DEFAULT 'FREE',
+                        email_verified BOOLEAN NOT NULL DEFAULT FALSE,
                         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
                     )
                 """.trimIndent())
                 statement.executeUpdate("ALTER TABLE user_account ADD COLUMN IF NOT EXISTS subscription_plan VARCHAR(20) NOT NULL DEFAULT 'FREE'")
+                statement.executeUpdate("ALTER TABLE user_account ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT FALSE")
+                statement.executeUpdate("CREATE UNIQUE INDEX IF NOT EXISTS user_account_email_unique ON user_account (LOWER(email)) WHERE email <> ''")
+                statement.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS pending_registration (
+                        email VARCHAR(254) PRIMARY KEY,
+                        username VARCHAR(80) NOT NULL,
+                        firstname VARCHAR(100) NOT NULL,
+                        lastname VARCHAR(100) NOT NULL,
+                        password_hash VARCHAR(100) NOT NULL,
+                        code_hash VARCHAR(64) NOT NULL,
+                        expires_at TIMESTAMPTZ NOT NULL,
+                        attempts SMALLINT NOT NULL DEFAULT 0,
+                        last_sent_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    )
+                """.trimIndent())
+                statement.executeUpdate("CREATE UNIQUE INDEX IF NOT EXISTS pending_registration_username_unique ON pending_registration (LOWER(username))")
+                // Remove only the legacy bootstrap account. New accounts are always self-service clients.
+                statement.executeUpdate("DELETE FROM user_account WHERE LOWER(username) = 'admin' AND user_roles LIKE '%SysAdmin%'")
             }
-            seedAdministrator(connection)
         }
-    }
-
-    private fun seedAdministrator(connection: Connection) {
-        val username = System.getenv("BOOTSTRAP_ADMIN_USERNAME")?.trim().orEmpty()
-        val password = System.getenv("BOOTSTRAP_ADMIN_PASSWORD").orEmpty()
-        if (username.isBlank() || password.isBlank()) return
-        require(password.length >= 12) { "BOOTSTRAP_ADMIN_PASSWORD must contain at least 12 characters" }
-        val accountCount = connection.createStatement().use { statement ->
-            statement.executeQuery("SELECT COUNT(*) FROM user_account").use { result -> result.next(); result.getInt(1) }
-        }
-        if (accountCount > 0) return
-        connection.prepareStatement("""
-            INSERT INTO user_account (
-                id, username, firstname, lastname, user_password, user_roles,
-                mobile_phone, phone_office, phone_ext, email, is_active
-            ) VALUES (gen_random_uuid(), ?, 'DreamApp', 'Administrator', ?, 'SysAdmin,Admin', '', '', '', '', TRUE)
-        """.trimIndent()).use { statement ->
-            statement.setString(1, username)
-            statement.setString(2, BCrypt.hashpw(password, BCrypt.gensalt(12)))
-            statement.executeUpdate()
-        }
-        logger.info("[OK] Initial administrator created")
     }
 
     /**

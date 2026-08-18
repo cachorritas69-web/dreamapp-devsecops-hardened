@@ -16,12 +16,12 @@ object AuthController {
 
     fun login(ctx: Context) {
         val loginRequest = ctx.bodyValidator<LoginRequestDto>().get()
-        if (loginRequest.userName.isBlank() || loginRequest.password.isBlank() || loginRequest.role.isBlank()) {
+        if (loginRequest.userName.isBlank() || loginRequest.password.isBlank()) {
             ctx.status(400).json(mapOf("success" to false, "error" to "Required fields are missing"))
             return
         }
         try {
-            val userInfo = loginUseCase.execute(loginRequest.userName, loginRequest.password, loginRequest.role, ctx)
+            val userInfo = loginUseCase.execute(loginRequest.userName, loginRequest.password, "Cliente", ctx)
             val token = AuthTokenService.issue(userInfo)
             ctx.json(mapOf("success" to true, "data" to userInfo, "token" to token, "expiresIn" to 43200))
         } catch (ex: Exception) {

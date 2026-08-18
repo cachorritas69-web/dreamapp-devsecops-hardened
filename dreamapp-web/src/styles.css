@@ -463,6 +463,11 @@ h3,
   color: #65788d;
   margin-top: 16px;
 }
+.field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field-help { display: block; color: var(--muted); margin-top: 7px; font-weight: 400; }
+.mail-icon { width: 56px; height: 56px; display: grid; place-items: center; border-radius: 16px; background: #4fd1c518; color: var(--teal); font-size: 1.6rem; }
+.code-input { text-align: center; font: 700 2rem Manrope; letter-spacing: .35em; }
+.text-button { display: block; margin: 18px auto 0; border: 0; background: none; color: var(--teal); cursor: pointer; }
 .shell {
   min-height: 100vh;
   display: grid;
@@ -965,6 +970,7 @@ h3,
   }
 }
 @media (max-width: 620px) {
+  .field-pair { grid-template-columns: 1fr; gap: 0; }
   .navlinks a {
     display: none;
   }

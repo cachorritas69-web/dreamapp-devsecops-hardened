@@ -13,6 +13,7 @@ import team.dreamapp.com.infrastructure.datasouce.authdatabase.AuthDataSource
 import team.dreamapp.com.presentation.auth.AccessManager
 import team.dreamapp.com.presentation.controller.account.UserAccountController
 import team.dreamapp.com.presentation.controller.auth.AuthController
+import team.dreamapp.com.presentation.controller.auth.RegistrationController
 import team.dreamapp.com.presentation.controller.sleep.SleepAiController
 import team.dreamapp.com.presentation.controller.sleep.SleepStatsController
 import team.dreamapp.com.presentation.controller.sleep.SleepStateController
@@ -97,6 +98,8 @@ fun main() {
             // Auth endpoints
             path("auth") {
                 post("login", AuthController::login, Role.UNAUTHENTICATED)
+                post("register", RegistrationController::register, Role.UNAUTHENTICATED)
+                post("verify", RegistrationController::verify, Role.UNAUTHENTICATED)
                 post("logout", AuthController::logout, Role.SYSADMIN, Role.ADMIN, Role.CLIENT)
             }
             // CRUD account endpoints
