@@ -8,7 +8,7 @@ import {
   type User,
   type UserInfo,
 } from "./api";
-type View = "overview" | "analysis" | "subscription" | "about";
+type View = "overview" | "analysis" | "subscription";
 const Logo = () => (
   <div className="logo" aria-hidden="true">
     ☾
@@ -440,7 +440,6 @@ function Dashboard({ session, exit }: { session: UserInfo; exit: () => void }) {
               ["overview", "⌂", "Resumen"],
               ["analysis", "⌁", "Análisis IA"],
               ["subscription", "◇", "Suscripción"],
-              ["about", "◉", "Sistema"],
             ] as [View, string, string][]
           ).map(([id, icon, label]) => (
             <button
@@ -477,7 +476,7 @@ function Dashboard({ session, exit }: { session: UserInfo; exit: () => void }) {
                     ? "Análisis inteligente"
                     : view === "subscription"
                       ? "Mejorar suscripción"
-                      : "Estado del sistema"}
+                      : "Resumen del sueño"}
             </h1>
           </div>
         </header>
@@ -600,30 +599,12 @@ function Dashboard({ session, exit }: { session: UserInfo; exit: () => void }) {
               <small>Orientativa; no sustituye atención médica.</small>
             </article>
           </section>
-        ) : view === "subscription" ? (
+        ) : (
           <section className="subscription-view">
             <div className="subscription-intro"><div><small>PLAN ACTUAL</small><h2>{planData.find(p=>p.id===plan)?.name||plan}</h2><p>Elige el nivel que mejor se adapte a tu uso de DreamApp.</p></div><span className="plan-badge">{plan}</span></div>
             {planMessage&&<div className="success-message">{planMessage}</div>}
             <PricingGrid actionLabel="Cambiar a este plan" current={plan} busy={planBusy} onChoose={changePlan}/>
             <p className="payment-note">La selección actualiza tu suscripción. El cobro automático se habilitará cuando conectemos una pasarela de pago.</p>
-          </section>
-        ) : (
-          <section className="system">
-            <article className="panel">
-              <Service name="DreamApp API" detail={API_URL} />
-              <Service name="Groq AI" detail="Modelo GPT-OSS 20B" />
-              <Service name="Firebase" detail="Proyecto dream-34ed4" />
-            </article>
-            <article className="panel">
-              <small>PRIVACIDAD Y SEGURIDAD</small>
-              <h3>Diseñada para proteger datos sensibles</h3>
-              <ul>
-                <li>Tokens de sesión temporales y revocables.</li>
-                <li>Comunicación cifrada mediante HTTPS.</li>
-                <li>Sin claves privadas en el navegador.</li>
-                <li>Acceso por roles a datos clínicos.</li>
-              </ul>
-            </article>
           </section>
         )}
       </main>
@@ -675,20 +656,6 @@ function Phase({
       <div>
         <i style={{ width: `${pct}%`, background: color }} />
       </div>
-    </div>
-  );
-}
-function Service({ name, detail }: { name: string; detail: string }) {
-  return (
-    <div className="service">
-      <div>
-        <i className="online" />
-        <span>
-          <b>{name}</b>
-          <small>{detail}</small>
-        </span>
-      </div>
-      <strong>Operativa</strong>
     </div>
   );
 }
