@@ -309,7 +309,7 @@ function Register({ back, done }: { back: () => void; done: () => void }) {
     {step === "details" ? <form className="auth-card" onSubmit={submitDetails}>
       <h2>Crear cuenta</h2><p>Todos los campos son obligatorios.</p>
       <div className="field-pair"><label>Nombre<input value={form.firstName} onChange={e=>setForm({...form,firstName:e.target.value})} required minLength={2} maxLength={100}/></label><label>Apellido<input value={form.lastName} onChange={e=>setForm({...form,lastName:e.target.value})} required minLength={2} maxLength={100}/></label></div>
-      <label>Usuario<input autoComplete="username" value={form.userName} onChange={e=>setForm({...form,userName:e.target.value})} required minLength={3} maxLength={40} pattern="[A-Za-z0-9._\\-]+"/></label>
+      <label>Usuario<input autoComplete="username" value={form.userName} onChange={e=>setForm({...form,userName:e.target.value})} required minLength={3} maxLength={40}/></label>
       <label>Correo electrónico<input type="email" autoComplete="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} required maxLength={254}/></label>
       <label>Contraseña<input type="password" autoComplete="new-password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})} required minLength={10} maxLength={72}/><small className="field-help">10 caracteres, mayúscula, minúscula y número.</small></label>
       {error&&<div className="error" role="alert">{error}</div>}<button className="button primary wide" disabled={busy}>{busy?"Enviando…":"Enviar código →"}</button>

@@ -29,11 +29,9 @@ services:
         value: "true"
       - key: DATABASE_URL
         sync: false
-      - key: SMTP_USERNAME
+      - key: GOOGLE_APPS_SCRIPT_URL
         sync: false
-      - key: SMTP_APP_PASSWORD
-        sync: false
-      - key: SMTP_FROM
+      - key: GOOGLE_APPS_SCRIPT_SECRET
         sync: false
       - key: EMAIL_VERIFICATION_SECRET
         generateValue: true

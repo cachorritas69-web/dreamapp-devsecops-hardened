@@ -1,43 +1,38 @@
 package team.dreamapp.com.infrastructure.service.email
 
-import jakarta.mail.Authenticator
-import jakarta.mail.Message
-import jakarta.mail.PasswordAuthentication
-import jakarta.mail.Session
-import jakarta.mail.Transport
-import jakarta.mail.internet.InternetAddress
-import jakarta.mail.internet.MimeMessage
-import java.util.Properties
+import com.fasterxml.jackson.databind.ObjectMapper
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+import java.time.Duration
 
 object EmailService {
+    private val objectMapper = ObjectMapper()
+    private val client = HttpClient.newBuilder()
+        .connectTimeout(Duration.ofSeconds(10))
+        .followRedirects(HttpClient.Redirect.ALWAYS)
+        .build()
+
     fun sendVerificationCode(recipient: String, code: String) {
-        val username = requiredEnv("SMTP_USERNAME")
-        val password = requiredEnv("SMTP_APP_PASSWORD").replace(" ", "")
-        val from = System.getenv("SMTP_FROM")?.trim().takeUnless { it.isNullOrBlank() } ?: username
-        val properties = Properties().apply {
-            put("mail.smtp.auth", "true")
-            put("mail.smtp.starttls.enable", "true")
-            put("mail.smtp.starttls.required", "true")
-            put("mail.smtp.host", "smtp.gmail.com")
-            put("mail.smtp.port", "587")
-            put("mail.smtp.connectiontimeout", "10000")
-            put("mail.smtp.timeout", "10000")
-            put("mail.smtp.writetimeout", "10000")
+        val url = requiredEnv("GOOGLE_APPS_SCRIPT_URL")
+        require(url.startsWith("https://script.google.com/macros/s/") && url.endsWith("/exec")) {
+            "GOOGLE_APPS_SCRIPT_URL must be a deployed Google Apps Script web app URL"
         }
-        val session = Session.getInstance(properties, object : Authenticator() {
-            override fun getPasswordAuthentication() = PasswordAuthentication(username, password)
-        })
-        val message = MimeMessage(session).apply {
-            setFrom(InternetAddress(from, "DreamApp"))
-            setRecipient(Message.RecipientType.TO, InternetAddress(recipient))
-            subject = "Tu código de verificación de DreamApp"
-            setText(
-                "Tu código de verificación es: $code\n\n" +
-                    "Caduca en 10 minutos. Si no solicitaste esta cuenta, ignora este correo.\n\nDreamApp",
-                Charsets.UTF_8.name()
-            )
+        val payload = objectMapper.writeValueAsString(mapOf(
+            "secret" to requiredEnv("GOOGLE_APPS_SCRIPT_SECRET"),
+            "recipient" to recipient,
+            "code" to code
+        ))
+        val request = HttpRequest.newBuilder(URI.create(url))
+            .timeout(Duration.ofSeconds(20))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload))
+            .build()
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        check(response.statusCode() in 200..299 && response.body().contains("\"success\":true")) {
+            "Google Apps Script rejected the email request (HTTP ${response.statusCode()})"
         }
-        Transport.send(message)
     }
 
     private fun requiredEnv(name: String): String = System.getenv(name)?.trim()
