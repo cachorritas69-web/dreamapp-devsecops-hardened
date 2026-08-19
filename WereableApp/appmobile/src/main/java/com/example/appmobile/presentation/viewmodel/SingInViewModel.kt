@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.example.appmobile.data.remote.DreamAppAuthClient
+import com.example.appmobile.data.remote.DreamAppGoogleAuthResponse
+import com.google.gson.Gson
+import android.util.Log
 
 class SignInViewModel(
     private val googleAuthUiClient: GoogleAuthUiClient,
@@ -56,9 +59,12 @@ class SignInViewModel(
         viewModelScope.launch {
             try {
                 val response = DreamAppAuthClient.api.authenticateGoogle()
-                val body = response.body()
+                val body = response.body() ?: runCatching {
+                    Gson().fromJson(response.errorBody()?.string(), DreamAppGoogleAuthResponse::class.java)
+                }.getOrNull()
                 val backendUser = body?.data
                 if (!response.isSuccessful || body?.success != true || backendUser == null) {
+                    Log.e("DreamAppAuth", "Backend rejected Google link with HTTP ${response.code()}")
                     _state.update { it.copy(
                         isLoading = false,
                         isSignInSuccessful = false,
