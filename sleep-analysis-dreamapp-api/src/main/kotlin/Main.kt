@@ -14,6 +14,7 @@ import team.dreamapp.com.presentation.auth.AccessManager
 import team.dreamapp.com.presentation.controller.account.UserAccountController
 import team.dreamapp.com.presentation.controller.auth.AuthController
 import team.dreamapp.com.presentation.controller.auth.RegistrationController
+import team.dreamapp.com.presentation.controller.auth.GoogleAuthController
 import team.dreamapp.com.presentation.controller.sleep.SleepAiController
 import team.dreamapp.com.presentation.controller.sleep.SleepStatsController
 import team.dreamapp.com.presentation.controller.sleep.SleepStateController
@@ -110,6 +111,7 @@ fun main() {
             // Auth endpoints
             path("auth") {
                 post("login", AuthController::login, Role.UNAUTHENTICATED)
+                post("google", GoogleAuthController::authenticate, Role.UNAUTHENTICATED)
                 post("register", RegistrationController::register, Role.UNAUTHENTICATED)
                 post("verify", RegistrationController::verify, Role.UNAUTHENTICATED)
                 post("logout", AuthController::logout, Role.SYSADMIN, Role.ADMIN, Role.CLIENT)
@@ -138,6 +140,7 @@ fun main() {
             // Sleep graphs endpoints
             path("sleep") {
                 get("stats", SleepStatsController::getSleepStats, Role.SYSADMIN, Role.ADMIN, Role.CLIENT)
+                post("sessions", SleepStatsController::upsertSleepSession, Role.CLIENT)
                 get("states", SleepStateController::getCurrentSleepStates, Role.SYSADMIN, Role.ADMIN)
                 post("states", SleepStateController::changeSleepState, Role.SYSADMIN, Role.ADMIN, Role.CLIENT)
                 get("connections", SleepStateController::getConnectionStats, Role.SYSADMIN, Role.ADMIN)

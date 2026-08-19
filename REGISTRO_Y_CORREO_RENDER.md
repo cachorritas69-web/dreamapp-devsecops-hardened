@@ -1,5 +1,11 @@
 # Registro y verificación por correo
 
+## Inicio de sesión móvil con Google
+
+El servicio `dreamapp-api` debe tener `FIREBASE_PROJECT_ID=dreamapp-c767e`. La app móvil envía el ID token de Firebase a `POST /auth/google`; el backend valida el token, vincula por correo verificado y asigna las métricas al `user_account.id` de PostgreSQL. No se necesita una clave privada de Firebase para validar el token.
+
+Las sesiones de sueño se sincronizan mediante `POST /sleep/sessions`. El backend ignora cualquier `uidUser` enviado por el cliente y toma siempre el usuario autenticado del token, evitando que una persona escriba métricas en la cuenta de otra.
+
 DreamApp crea cuentas personales con el rol `Cliente`. La cuenta se guarda definitivamente solo después de validar el código de seis dígitos enviado por correo.
 
 ## Variables de entorno en Render

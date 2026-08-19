@@ -24,5 +24,5 @@ object RepositoryProvider {
     val userRepository: UserRepository = UserRepositoryImpl(httpClient, baseURL)
 
     // Stats Provider
-    val sleepRepository: SleepRepository = SleepRepositoryImpl(httpClient, baseURL)
+    val sleepRepository: SleepRepository = SleepRepositoryImpl()
 }

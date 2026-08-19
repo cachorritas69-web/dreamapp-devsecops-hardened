@@ -22,7 +22,7 @@ services:
       - key: WEBSOCKETS_ENABLED
         value: "false"
       - key: FIREBASE_PROJECT_ID
-        value: dream-34ed4
+        value: dreamapp-c767e
       - key: FIREBASE_FUNCTIONS_URL
         value: https://us-central1-dream-34ed4.cloudfunctions.net/
       - key: DB_ENABLED

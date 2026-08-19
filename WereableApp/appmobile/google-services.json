@@ -1,33 +1,41 @@
 {
   "project_info": {
-    "project_number": "990434858723",
-    "project_id": "dream-34ed4",
-    "storage_bucket": "dream-34ed4.firebasestorage.app"
+    "project_number": "198902405344",
+    "project_id": "dreamapp-c767e",
+    "storage_bucket": "dreamapp-c767e.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:990434858723:android:2cecd395ca5b9e9f2157d6",
+        "mobilesdk_app_id": "1:198902405344:android:a50fb497c01daacfcf5885",
         "android_client_info": {
-          "package_name": "com.example.appmobile"
+          "package_name": "com.dreamapp.mobile"
         }
       },
       "oauth_client": [
         {
-          "client_id": "990434858723-pc9are84unfab0hr14ol6s7u32l5ts55.apps.googleusercontent.com",
+          "client_id": "198902405344-blhb0b2nsg5efvd5eeep8u7qfaka4r7j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dreamapp.mobile",
+            "certificate_hash": "96d7dca44ff243cda0cd79f2fc1ed2d23eb0a12f"
+          }
+        },
+        {
+          "client_id": "198902405344-rginiid17furh9445fl3idqs9qhu5qe4.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDwOv2vyY48dEOH2Z9BsMePV960V9qCB4U"
+          "current_key": "AIzaSyAj8yczN0TFZjDVbAAwvdCBZQcU74vGPPw"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "990434858723-pc9are84unfab0hr14ol6s7u32l5ts55.apps.googleusercontent.com",
+              "client_id": "198902405344-rginiid17furh9445fl3idqs9qhu5qe4.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

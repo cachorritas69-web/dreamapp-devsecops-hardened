@@ -67,7 +67,8 @@ Cada subida incluye datos realistas como:
 ### **2. API Service**
 - `SleepApiService` - Interface Retrofit para llamadas HTTP
 - `SleepApiClient` - Cliente configurado para la URL de producción
-- **Endpoint:** `https://registerusersleepdata-nmry4bipxq-uc.a.run.app/registerUserSleepData`
+- **Endpoint actual:** `https://dreamapp-api.onrender.com/sleep/sessions`
+- **Identidad:** el backend obtiene el usuario del token Firebase verificado y no confía en `uidUser` enviado por el dispositivo.
 
 ### **3. Repositorio**
 - `CloudSleepDataRepository` - Lógica de negocio para subida

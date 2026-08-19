@@ -74,6 +74,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:6.3.0") // High-performance JDBC connection pool
     implementation("com.github.seratch:kotliquery:1.9.1") // Lightweight SQL and JDBC wrapper for Kotlin
     implementation("de.svenkubiak:jBCrypt:0.4.3") // Library for BCrypt password hashing
+    testImplementation(kotlin("test"))
 }
 
 tasks.test {

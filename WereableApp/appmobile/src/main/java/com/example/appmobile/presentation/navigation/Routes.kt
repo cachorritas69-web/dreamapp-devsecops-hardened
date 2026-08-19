@@ -7,4 +7,5 @@ object Routes {
     const val USER_SCREEN = "user_screen"
     const val MONITOR = "monitor"
     const val HISTORY = "history"
+    const val BLE_DIAGNOSTICS = "ble_diagnostics"
 }

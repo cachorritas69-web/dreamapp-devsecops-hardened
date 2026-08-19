@@ -81,12 +81,43 @@ object AuthDataSource {
                         is_active BOOLEAN NOT NULL DEFAULT TRUE,
                         subscription_plan VARCHAR(20) NOT NULL DEFAULT 'FREE',
                         email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+                        firebase_uid VARCHAR(128),
                         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
                     )
                 """.trimIndent())
                 statement.executeUpdate("ALTER TABLE user_account ADD COLUMN IF NOT EXISTS subscription_plan VARCHAR(20) NOT NULL DEFAULT 'FREE'")
                 statement.executeUpdate("ALTER TABLE user_account ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT FALSE")
+                statement.executeUpdate("ALTER TABLE user_account ADD COLUMN IF NOT EXISTS firebase_uid VARCHAR(128)")
                 statement.executeUpdate("CREATE UNIQUE INDEX IF NOT EXISTS user_account_email_unique ON user_account (LOWER(email)) WHERE email <> ''")
+                statement.executeUpdate("CREATE UNIQUE INDEX IF NOT EXISTS user_account_firebase_uid_unique ON user_account (firebase_uid) WHERE firebase_uid IS NOT NULL")
+                statement.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS sleep_session (
+                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                        user_id UUID NOT NULL REFERENCES user_account(id) ON DELETE CASCADE,
+                        device_id VARCHAR(160) NOT NULL DEFAULT '',
+                        sleep_date DATE NOT NULL,
+                        start_time TIMESTAMPTZ,
+                        end_time TIMESTAMPTZ,
+                        timezone VARCHAR(80) NOT NULL DEFAULT 'UTC',
+                        total_duration INTEGER NOT NULL DEFAULT 0 CHECK (total_duration >= 0),
+                        sleep_duration INTEGER NOT NULL DEFAULT 0 CHECK (sleep_duration >= 0),
+                        light_minutes INTEGER NOT NULL DEFAULT 0 CHECK (light_minutes >= 0),
+                        deep_minutes INTEGER NOT NULL DEFAULT 0 CHECK (deep_minutes >= 0),
+                        rem_minutes INTEGER NOT NULL DEFAULT 0 CHECK (rem_minutes >= 0),
+                        awake_minutes INTEGER NOT NULL DEFAULT 0 CHECK (awake_minutes >= 0),
+                        sleep_efficiency DOUBLE PRECISION NOT NULL DEFAULT 0 CHECK (sleep_efficiency BETWEEN 0 AND 100),
+                        awakenings INTEGER NOT NULL DEFAULT 0 CHECK (awakenings >= 0),
+                        quality VARCHAR(20) NOT NULL DEFAULT 'POOR',
+                        avg_heart_rate INTEGER NOT NULL DEFAULT 0 CHECK (avg_heart_rate >= 0),
+                        min_heart_rate INTEGER NOT NULL DEFAULT 0 CHECK (min_heart_rate >= 0),
+                        max_heart_rate INTEGER NOT NULL DEFAULT 0 CHECK (max_heart_rate >= 0),
+                        avg_hrv DOUBLE PRECISION NOT NULL DEFAULT 0 CHECK (avg_hrv >= 0),
+                        source VARCHAR(30) NOT NULL DEFAULT 'MOBILE',
+                        created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE (user_id, sleep_date)
+                    )
+                """.trimIndent())
                 statement.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS pending_registration (
                         email VARCHAR(254) PRIMARY KEY,

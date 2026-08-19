@@ -43,7 +43,8 @@ private const val BASE_URL = LOCAL_DEVICE_URL
 ```kotlin
 private const val BASE_URL = PRODUCTION_URL
 ```
-- **URL**: `https://registerusersleepdata-nmry4bipxq-uc.a.run.app/`
+- **URL**: `https://dreamapp-api.onrender.com/`
+- **Carga de sueño**: `POST /sleep/sessions` con token Firebase de la cuenta Google vinculada.
 - **Uso**: Entorno de producción
 - **Requisitos**: Cloud Functions desplegadas
 

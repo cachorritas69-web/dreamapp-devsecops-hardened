@@ -8,14 +8,14 @@ plugins {
 
 val dreamAppApiUrl = providers.gradleProperty("DREAMAPP_API_URL")
     .orElse(providers.environmentVariable("DREAMAPP_API_URL"))
-    .orElse("https://example.invalid/").get().trimEnd('/') + "/"
+    .orElse("https://dreamapp-api.onrender.com/").get().trimEnd('/') + "/"
 
 android {
     namespace = "com.example.appmobile"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.appmobile"
+        applicationId = "com.dreamapp.mobile"
         minSdk = 30
         targetSdk = 35
         versionCode = 1

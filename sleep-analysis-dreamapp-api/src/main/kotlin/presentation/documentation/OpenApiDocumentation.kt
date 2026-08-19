@@ -60,6 +60,10 @@ object OpenApiDocumentation {
                     "Iniciar sesión", "Autenticación", false,
                     obj("userName" to "string", "password" to "string")
                 )),
+                "/auth/google" to mapOf("post" to operation(
+                    "Vincular o crear una cuenta mediante un token Firebase de Google", "Autenticación", true,
+                    success = "Cuenta vinculada y sesión creada"
+                )),
                 "/auth/register" to mapOf("post" to operation(
                     "Solicitar registro y código de verificación", "Autenticación", false,
                     obj("firstName" to "string", "lastName" to "string", "userName" to "string", "email" to "email", "password" to "string"),
@@ -85,6 +89,10 @@ object OpenApiDocumentation {
                 "/users" to mapOf("get" to operation("Listar usuarios sincronizados", "Usuarios")),
                 "/users/notify-update" to mapOf("post" to operation("Notificar actualización de usuarios", "Usuarios")),
                 "/sleep/stats" to mapOf("get" to operation("Obtener las métricas de sueño del usuario actual", "Sueño")),
+                "/sleep/sessions" to mapOf("post" to operation(
+                    "Registrar o actualizar una sesión de sueño del usuario actual", "Sueño",
+                    bodySchema = mapOf("type" to "object")
+                )),
                 "/sleep/states" to mapOf(
                     "get" to operation("Consultar estados actuales de sueño", "Sueño"),
                     "post" to operation("Registrar un cambio de estado de sueño", "Sueño", bodySchema = mapOf("type" to "object"))

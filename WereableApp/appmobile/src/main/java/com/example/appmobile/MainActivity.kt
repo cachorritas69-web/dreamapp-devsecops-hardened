@@ -94,6 +94,13 @@ class MainActivity : ComponentActivity() {
                                     )
                                     signInViewModel.onSignInResult(signInResult)
                                 }
+                            } else {
+                                signInViewModel.onSignInResult(
+                                    com.example.appmobile.domain.model.SignInResult(
+                                        data = null,
+                                        errorMessage = "El inicio de sesión con Google fue cancelado."
+                                    )
+                                )
                             }
                         }
                     )
