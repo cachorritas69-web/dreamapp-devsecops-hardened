@@ -20,6 +20,7 @@ import team.dreamapp.com.presentation.controller.sleep.SleepStateController
 import team.dreamapp.com.presentation.controller.users.UserController
 import team.dreamapp.com.presentation.controller.subscription.SubscriptionController
 import team.dreamapp.com.presentation.security.RequestSecurity
+import team.dreamapp.com.presentation.documentation.OpenApiDocumentation
 
 /**
  * Entry point of the DreamApp backend server.
@@ -95,6 +96,17 @@ fun main() {
             // =========================
             get("/", { ctx -> ctx.json(mapOf("message" to "Server Javalin")) }, Role.SYSADMIN, Role.ADMIN, Role.CLIENT, Role.UNAUTHENTICATED)
             get("/health", { ctx -> ctx.json(mapOf("status" to "ok")) }, Role.UNAUTHENTICATED)
+            get("/openapi.json", { ctx ->
+                ctx.contentType("application/json").json(OpenApiDocumentation.spec(ctx))
+            }, Role.UNAUTHENTICATED)
+            get("/swagger", { ctx ->
+                ctx.header(
+                    "Content-Security-Policy",
+                    "default-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+                        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self'"
+                )
+                ctx.contentType("text/html; charset=utf-8").result(OpenApiDocumentation.swaggerHtml)
+            }, Role.UNAUTHENTICATED)
             // Auth endpoints
             path("auth") {
                 post("login", AuthController::login, Role.UNAUTHENTICATED)
