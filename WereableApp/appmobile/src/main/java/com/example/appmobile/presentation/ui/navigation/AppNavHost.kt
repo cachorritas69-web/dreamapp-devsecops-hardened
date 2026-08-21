@@ -18,7 +18,7 @@ import com.example.appmobile.presentation.ui.screens.UserScreen
 import com.example.appmobile.presentation.ui.screens.ProfileScreen
 import com.example.appmobile.presentation.ui.screens.SleepMonitorScreen
 import com.example.appmobile.presentation.ui.screens.SleepHistoryScreen
-import com.example.appmobile.presentation.ui.screens.BleDiagnosticsScreen
+import com.example.appmobile.presentation.ui.screens.HealthConnectScreen
 import com.example.appmobile.presentation.viewmodel.SignInViewModel
 import com.example.appmobile.presentation.viewmodel.SignInViewModelFactory
 import com.example.appmobile.presentation.viewmodel.SleepMonitorViewModel
@@ -118,8 +118,8 @@ fun AppNavHost(
                 onNavigateToHistory = {
                     navController.navigate(Routes.HISTORY)
                 },
-                onNavigateToBleDiagnostics = {
-                    navController.navigate(Routes.BLE_DIAGNOSTICS)
+                onNavigateToHealthConnect = {
+                    navController.navigate(Routes.HEALTH_CONNECT)
                 }
             )
         }
@@ -144,8 +144,11 @@ fun AppNavHost(
             )
         }
 
-        composable(Routes.BLE_DIAGNOSTICS) {
-            BleDiagnosticsScreen(onNavigateBack = { navController.popBackStack() })
+        composable(Routes.HEALTH_CONNECT) {
+            HealthConnectScreen(
+                userId = googleAuthUiClient.getSignedInUser()?.userId.orEmpty(),
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
         
         composable(Routes.USER_SCREEN) {

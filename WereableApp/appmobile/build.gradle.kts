@@ -12,7 +12,7 @@ val dreamAppApiUrl = providers.gradleProperty("DREAMAPP_API_URL")
 
 android {
     namespace = "com.example.appmobile"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.dreamapp.mobile"
@@ -85,6 +85,7 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.coil.compose)
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("androidx.health.connect:connect-client:1.1.0")
     // Room (Database)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

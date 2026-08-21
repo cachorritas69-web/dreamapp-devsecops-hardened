@@ -28,7 +28,7 @@ import androidx.compose.material.icons.filled.SentimentSatisfied
 import androidx.compose.material.icons.filled.SentimentVerySatisfied
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Assessment
-import androidx.compose.material.icons.filled.BluetoothSearching
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -58,7 +58,7 @@ fun ProfileScreen(
     onStartMonitoring: () -> Unit,
     onNavigateToUserScreen: () -> Unit,
     onNavigateToHistory: () -> Unit,
-    onNavigateToBleDiagnostics: () -> Unit
+    onNavigateToHealthConnect: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -224,12 +224,12 @@ fun ProfileScreen(
                         }
 
                         OutlinedButton(
-                            onClick = onNavigateToBleDiagnostics,
+                            onClick = onNavigateToHealthConnect,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.Default.BluetoothSearching, contentDescription = null)
+                            Icon(Icons.Default.Sync, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Conectar reloj por Bluetooth (experimental)")
+                            Text("Sincronizar Galaxy Watch")
                         }
                     }
                 }
