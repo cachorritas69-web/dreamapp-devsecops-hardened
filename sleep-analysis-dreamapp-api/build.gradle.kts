@@ -59,7 +59,7 @@ dependencies {
     // Kotlin & Coroutines
     // =========================
     implementation(kotlin("stdlib")) // Kotlin standard library
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0") // Coroutines core
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0") // Coroutines core
     // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0") // Optional for Google Play Services
 
     // =========================
