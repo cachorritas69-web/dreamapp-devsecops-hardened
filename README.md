@@ -18,16 +18,8 @@
 
 **Carrera**: Tecnologías de la Información  
 **Materia**: Desarrollo de Aplicaciones IoT  
-**Periodo**: 2025
+**Periodo**: 2026
 
-### Equipo de Desarrollo
-
-- **Xiadani Citlalli Vazquez Patiño** - Frontend & Mobile Development
-- **Monserrat Belen Flores Lopez** - Backend & Database Design  
-- **Alison Campos Aguilar** - Wearable Development & IoT Integration
-- **Fernando Leon Monroy** - DevOps & AI Integration
-
----
 
 ## Descripción del Proyecto
 
@@ -258,11 +250,6 @@ fun detectSleepPhase(bpm: Float, rmssd: Double, sdnn: Double, movement: Double):
 - **JDK 21**
 
 ### 1. Clonar el Repositorio
-
-```bash
-git clone https://github.com/UTTTeamv2/aplicativo-iot.git
-cd aplicativo-iot
-```
 
 ### 2. Configurar Firebase
 
