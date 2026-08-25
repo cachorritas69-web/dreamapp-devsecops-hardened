@@ -16,6 +16,31 @@ const Logo = () => (
   </div>
 );
 
+function FormattedAdvice({ text }: { text: string }) {
+  const lines = text
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/\s*\|\s*/g, "\n")
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter((line) => line && !/^[-:]{3,}$/.test(line));
+
+  return (
+    <div className="formatted-advice">
+      {lines.map((raw, index) => {
+        const heading = raw.match(/^#{1,4}\s*(.+)$/);
+        const numbered = raw.match(/^\d+\.\s*(.+)$/);
+        const cleaned = (heading?.[1] || numbered?.[1] || raw)
+          .replace(/\*\*/g, "")
+          .replace(/^[-–—]\s*/, "");
+        if (!cleaned || /^(área|parámetro|valor|comentario)$/i.test(cleaned)) return null;
+        if (heading) return <h4 key={index}>{cleaned}</h4>;
+        if (numbered) return <div className="advice-item" key={index}><span>{numbered[0].split(".")[0]}</span><p>{cleaned}</p></div>;
+        return <p key={index}>{cleaned}</p>;
+      })}
+    </div>
+  );
+}
+
 function Landing({ enter, register }: { enter: () => void; register: () => void }) {
   return (
     <main className="landing">
@@ -621,10 +646,8 @@ function Dashboard({ session, exit }: { session: UserInfo; exit: () => void }) {
               <div className="ai-icon">✦</div>
               <small>ASISTENTE DREAM AI</small>
               <h3>Recomendación personalizada</h3>
-              <p>
-                {advice ||
-                  "Analiza las noches recientes y genera sugerencias concretas para mejorar el descanso."}
-              </p>
+              <FormattedAdvice text={advice ||
+                "Analiza las noches recientes y genera sugerencias concretas para mejorar el descanso."} />
               <button className="button primary" onClick={analyze}>
                 ✦ Analizar con IA
               </button>

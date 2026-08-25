@@ -20,6 +20,14 @@ object SleepStatsController {
         ctx.json(mapOf("success" to true, "data" to response))
     }
 
+    fun getSleepHistory(ctx: Context) {
+        val uidUser = ctx.userInfo!!.id
+        val sessions = RepositoryProvider.sleepRepository
+            .getAllSleepSummaryByUser(uidUser)
+            .sortedByDescending { it.date }
+        ctx.json(mapOf("success" to true, "data" to sessions))
+    }
+
     fun upsertSleepSession(ctx: Context) {
         val input = runCatching { ctx.bodyAsClass(SleepSessionInput::class.java) }.getOrNull()
         if (input == null || !valid(input)) {

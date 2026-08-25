@@ -857,10 +857,37 @@ h3,
   color: white;
   margin-bottom: 20px;
 }
-.ai-card p {
+.formatted-advice {
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+.formatted-advice h4 {
+  margin: 18px 0 8px;
+  color: #eef5ff;
+  font: 700 0.92rem Manrope;
+}
+.formatted-advice p {
   color: #aab8c8;
   line-height: 1.65;
-  min-height: 125px;
+  margin: 7px 0;
+  white-space: normal;
+}
+.advice-item {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 8px;
+  align-items: start;
+}
+.advice-item > span {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(116, 94, 229, 0.25);
+  color: #d8ceff;
+  font-size: 0.72rem;
 }
 .ai-card > small:last-child {
   display: block;

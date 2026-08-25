@@ -4,6 +4,7 @@ import com.example.appmobile.domain.model.SleepDataUpload
 import com.example.appmobile.domain.model.SleepUploadResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 
 data class SleepStateUpdateRequest(
@@ -19,7 +20,29 @@ data class SleepStateUpdateResponse(
     val error: String? = null
 )
 
+data class CloudSleepHistoryResponse(
+    val success: Boolean,
+    val data: List<CloudSleepSession> = emptyList()
+)
+
+data class CloudSleepSession(
+    val date: String,
+    val quality: String,
+    val sleepEfficiency: Double,
+    val sleepDuration: Int,
+    val light: Int,
+    val deep: Int,
+    val rem: Int,
+    val awake: Int,
+    val avgHR: Int,
+    val avgHRV: Int,
+    val awakenings: Int
+)
+
 interface SleepApiService {
+    @GET("sleep/sessions")
+    suspend fun getSleepHistory(): Response<CloudSleepHistoryResponse>
+
     
     @POST("sleep/sessions")
     suspend fun uploadSleepData(

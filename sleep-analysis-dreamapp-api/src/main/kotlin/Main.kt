@@ -140,6 +140,7 @@ fun main() {
             // Sleep graphs endpoints
             path("sleep") {
                 get("stats", SleepStatsController::getSleepStats, Role.SYSADMIN, Role.ADMIN, Role.CLIENT)
+                get("sessions", SleepStatsController::getSleepHistory, Role.SYSADMIN, Role.ADMIN, Role.CLIENT)
                 post("sessions", SleepStatsController::upsertSleepSession, Role.CLIENT)
                 get("states", SleepStateController::getCurrentSleepStates, Role.SYSADMIN, Role.ADMIN)
                 post("states", SleepStateController::changeSleepState, Role.SYSADMIN, Role.ADMIN, Role.CLIENT)

@@ -142,7 +142,7 @@ fun AppNavHost(
         composable(Routes.HISTORY) {
             val viewModel = viewModel<SleepMonitorViewModel>()
             SleepHistoryScreen(
-                viewModel = viewModel,
+                monitorViewModel = viewModel,
                 onNavigateBack = {
                     navController.popBackStack()
                 }
