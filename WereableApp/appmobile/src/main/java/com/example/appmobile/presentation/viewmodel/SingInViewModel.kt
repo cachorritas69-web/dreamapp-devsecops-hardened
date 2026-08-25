@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.example.appmobile.data.remote.DreamAppAuthClient
 import com.example.appmobile.data.remote.DreamAppGoogleAuthResponse
+import com.example.appmobile.data.remote.DreamAppPasswordLoginRequest
+import com.example.appmobile.data.remote.DreamAppSession
 import com.google.gson.Gson
 import android.util.Log
 
@@ -72,8 +74,10 @@ class SignInViewModel(
                     ) }
                     return@launch
                 }
+                body.token?.let(DreamAppSession::start)
                 _state.update { it.copy(
                     uid = backendUser.id,
+                    username = backendUser.userName,
                     isNewUser = false,
                     isLoading = false,
                     isSignInSuccessful = true,
@@ -91,7 +95,57 @@ class SignInViewModel(
         }
     }
 
+    fun signInWithPassword(userName: String, password: String) {
+        val normalizedUserName = userName.trim()
+        if (normalizedUserName.isBlank() || password.isBlank()) {
+            _state.update { it.copy(signInError = "Escribe tu usuario y contraseña.") }
+            return
+        }
+        _state.update { it.copy(isLoading = true, signInError = null) }
+        viewModelScope.launch {
+            try {
+                val response = DreamAppAuthClient.api.login(
+                    DreamAppPasswordLoginRequest(normalizedUserName, password)
+                )
+                val body = response.body() ?: runCatching {
+                    Gson().fromJson(response.errorBody()?.string(), DreamAppGoogleAuthResponse::class.java)
+                }.getOrNull()
+                val backendUser = body?.data
+                val token = body?.token
+                if (!response.isSuccessful || body?.success != true || backendUser == null || token.isNullOrBlank()) {
+                    _state.update { it.copy(
+                        isLoading = false,
+                        isSignInSuccessful = false,
+                        signInError = if (response.code() == 401) {
+                            "Usuario o contraseña incorrectos."
+                        } else {
+                            body?.error ?: "DreamApp no pudo iniciar la sesión."
+                        }
+                    ) }
+                    return@launch
+                }
+                DreamAppSession.start(token)
+                _state.update { it.copy(
+                    uid = backendUser.id,
+                    username = backendUser.userName,
+                    isNewUser = false,
+                    isLoading = false,
+                    isSignInSuccessful = true,
+                    signInError = null,
+                    signInSuccessMessage = "Sesión iniciada correctamente."
+                ) }
+            } catch (ex: Exception) {
+                _state.update { it.copy(
+                    isLoading = false,
+                    isSignInSuccessful = false,
+                    signInError = "No se pudo conectar con DreamApp API: ${ex.localizedMessage ?: "error de red"}"
+                ) }
+            }
+        }
+    }
+
     fun resetState() {
+        DreamAppSession.clear()
         _state.update { SignInState() }
     }
 

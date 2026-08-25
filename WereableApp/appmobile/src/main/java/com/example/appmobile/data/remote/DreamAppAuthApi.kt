@@ -5,6 +5,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.POST
+import retrofit2.http.Body
 
 data class DreamAppUserInfo(
     val id: String,
@@ -19,7 +20,17 @@ data class DreamAppGoogleAuthResponse(
     val error: String?
 )
 
+data class DreamAppPasswordLoginRequest(
+    val userName: String,
+    val password: String
+)
+
 interface DreamAppAuthApi {
+    @POST("auth/login")
+    suspend fun login(
+        @Body request: DreamAppPasswordLoginRequest
+    ): Response<DreamAppGoogleAuthResponse>
+
     @POST("auth/google")
     suspend fun authenticateGoogle(): Response<DreamAppGoogleAuthResponse>
 }

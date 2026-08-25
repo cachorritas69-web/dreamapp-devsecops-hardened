@@ -52,7 +52,8 @@ fun AppNavHost(
         composable(Routes.SIGN_IN) {
             SignInScreen(
                 state = state,
-                onSignInClick = onSignInClick
+                onSignInClick = onSignInClick,
+                onPasswordSignIn = signInViewModel::signInWithPassword
             )
 
             LaunchedEffect(state.isSignInSuccessful, state.isLoading) {
@@ -93,8 +94,12 @@ fun AppNavHost(
                     username = currentUser.username,
                     profilePictureUrl = currentUser.profilePictureUrl
                 )
-            } else {
-                null
+            } else state.uid?.let { uid ->
+                UserData(
+                    userId = uid,
+                    username = state.username,
+                    profilePictureUrl = null
+                )
             }
             
             ProfileScreen(
@@ -146,7 +151,7 @@ fun AppNavHost(
 
         composable(Routes.HEALTH_CONNECT) {
             HealthConnectScreen(
-                userId = googleAuthUiClient.getSignedInUser()?.userId.orEmpty(),
+                userId = state.uid ?: googleAuthUiClient.getSignedInUser()?.userId.orEmpty(),
                 onNavigateBack = { navController.popBackStack() }
             )
         }

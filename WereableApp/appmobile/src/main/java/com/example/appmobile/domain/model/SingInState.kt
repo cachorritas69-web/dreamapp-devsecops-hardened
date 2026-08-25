@@ -4,6 +4,7 @@ import android.content.IntentSender
 
 data class SignInState(
     val uid: String? = null,
+    val username: String? = null,
     val isSignInSuccessful: Boolean = false,
     val signInError: String? = null,
     val isLoading: Boolean = false,

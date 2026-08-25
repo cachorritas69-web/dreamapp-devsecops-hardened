@@ -8,6 +8,13 @@ import java.util.concurrent.TimeUnit
 
 class FirebaseAuthInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
+        DreamAppSession.token?.takeIf { it.isNotBlank() }?.let { sessionToken ->
+            return chain.proceed(
+                chain.request().newBuilder()
+                    .header("Authorization", "Bearer $sessionToken")
+                    .build()
+            )
+        }
         val user = FirebaseAuth.getInstance().currentUser
             ?: return chain.proceed(chain.request())
         val token = runCatching {
