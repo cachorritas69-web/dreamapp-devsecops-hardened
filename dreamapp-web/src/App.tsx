@@ -8,6 +8,7 @@ import {
   type User,
   type UserInfo,
 } from "./api";
+import { getGoogleIdToken } from "./firebase";
 type View = "overview" | "analysis" | "subscription";
 const Logo = () => (
   <div className="logo" aria-hidden="true">
@@ -212,6 +213,27 @@ function Login({
       setBusy(false);
     }
   }
+  async function submitGoogle() {
+    setError("");
+    setBusy(true);
+    try {
+      const idToken = await getGoogleIdToken();
+      success((await api.googleLogin(idToken)).data);
+    } catch (err) {
+      const code = typeof err === "object" && err !== null && "code" in err ? String(err.code) : "";
+      setError(
+        code === "auth/popup-closed-by-user"
+          ? "Se cerró la ventana de Google antes de terminar."
+          : code === "auth/popup-blocked"
+            ? "El navegador bloqueó la ventana de Google. Permite ventanas emergentes e inténtalo otra vez."
+            : code === "auth/unauthorized-domain"
+              ? "Este dominio aún no está autorizado en Firebase."
+              : err instanceof Error ? err.message : "No fue posible iniciar sesión con Google.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <main className="auth-page">
       <button className="back" onClick={back}>
@@ -245,6 +267,16 @@ function Login({
         </div>
         <h2>Iniciar sesión</h2>
         <p>Ingresa con tu cuenta de DreamApp.</p>
+        <button
+          className="button google wide"
+          type="button"
+          disabled={busy}
+          onClick={submitGoogle}
+        >
+          <span aria-hidden="true">G</span>
+          {busy ? "Conectando…" : "Continuar con Google"}
+        </button>
+        <div className="auth-divider"><span>o usa tu contraseña</span></div>
         <label>
           Usuario
           <input

@@ -98,6 +98,18 @@ export const api = {
     sessionStorage.setItem(TOKEN_KEY, result.token);
     return result;
   },
+  googleLogin: async (idToken: string) => {
+    const result = await request<{
+      success: boolean;
+      data: UserInfo;
+      token: string;
+    }>("/auth/google", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${idToken}` },
+    });
+    sessionStorage.setItem(TOKEN_KEY, result.token);
+    return result;
+  },
   register: (payload: { firstName: string; lastName: string; userName: string; email: string; password: string }) =>
     request<{ success: boolean; message: string }>("/auth/register", { method: "POST", body: JSON.stringify(payload) }),
   verify: (email: string, code: string) =>
