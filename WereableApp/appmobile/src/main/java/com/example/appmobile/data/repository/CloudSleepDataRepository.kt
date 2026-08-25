@@ -52,12 +52,15 @@ class CloudSleepDataRepository {
                     try {
                         val error = gson.fromJson(errorBody, SleepUploadError::class.java)
                         Log.e("CloudSleepDataRepository", "Error específico: ${gson.toJson(error)}")
+                        val serverMessage = error.message?.takeIf { it.isNotBlank() }
+                            ?: error.error?.takeIf { it.isNotBlank() }
+                            ?: "Solicitud rechazada por el servidor"
                         
                         when (response.code()) {
                             409 -> Result.failure(Exception("Ya existe una sesión de sueño para esta fecha: ${error.date}"))
-                            400 -> Result.failure(Exception("Datos inválidos: ${error.message}"))
+                            400 -> Result.failure(Exception("Datos inválidos: $serverMessage"))
                             403 -> Result.failure(Exception("Permisos insuficientes"))
-                            else -> Result.failure(Exception("Error del servidor: ${error.message}"))
+                            else -> Result.failure(Exception("Error del servidor: $serverMessage"))
                         }
                     } catch (e: Exception) {
                         Log.e("CloudSleepDataRepository", "Error parseando respuesta de error", e)

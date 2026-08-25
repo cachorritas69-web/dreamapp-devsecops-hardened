@@ -279,7 +279,11 @@ fun ProfileScreen(
                                         )
                                 )
                                 Text(
-                                    text = if (isConnected) "Conectado" else "Desconectado",
+                                    text = when {
+                                        isConnected -> "Sincronizado"
+                                        isSyncEnabled -> "Conectando"
+                                        else -> "Inactivo"
+                                    },
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Medium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -447,7 +451,7 @@ fun ProfileScreen(
                                 )
                             ) {
                                 Text(
-                                    text = "Conectando al servidor...",
+                                    text = "Validando sesión y conexión con DreamApp…",
                                     style = MaterialTheme.typography.bodyLarge,
                                     fontWeight = FontWeight.Medium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,

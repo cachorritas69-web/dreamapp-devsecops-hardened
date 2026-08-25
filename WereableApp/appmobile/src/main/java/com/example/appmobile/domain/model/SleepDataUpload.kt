@@ -3,7 +3,7 @@ package com.example.appmobile.domain.model
 import com.google.gson.annotations.SerializedName
 
 data class SleepDataUpload(
-    @SerializedName("uidUser") val uidUser: String,
+    @Transient @SerializedName("uidUser") val uidUser: String,
     @SerializedName("deviceId") val deviceId: String,
     @SerializedName("date") val date: String,
     @SerializedName("startTime") val startTime: String,
@@ -21,12 +21,12 @@ data class SleepDataUpload(
     @SerializedName("avgHeartRate") val avgHeartRate: Int,
     @SerializedName("minHeartRate") val minHeartRate: Int,
     @SerializedName("maxHeartRate") val maxHeartRate: Int,
-    @SerializedName("avgMovement") val avgMovement: Int,
+    @Transient @SerializedName("avgMovement") val avgMovement: Int,
     @SerializedName("avgRmssd") val avgRmssd: Double,
-    @SerializedName("avgSdnn") val avgSdnn: Double,
-    @SerializedName("sleepPhaseData") val sleepPhaseData: List<SleepPhaseData>,
-    @SerializedName("createdAt") val createdAt: Long,
-    @SerializedName("dataVersion") val dataVersion: String
+    @Transient @SerializedName("avgSdnn") val avgSdnn: Double,
+    @Transient @SerializedName("sleepPhaseData") val sleepPhaseData: List<SleepPhaseData>,
+    @Transient @SerializedName("createdAt") val createdAt: Long,
+    @Transient @SerializedName("dataVersion") val dataVersion: String
 )
 
 data class SleepPhaseData(
@@ -56,8 +56,8 @@ data class SleepUploadData(
 )
 
 data class SleepUploadError(
-    val error: String,
-    val message: String,
+    val error: String? = null,
+    val message: String? = null,
     val date: String? = null,
     val startTime: String? = null,
     val details: List<ValidationError>? = null

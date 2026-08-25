@@ -6,12 +6,30 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 
+data class SleepStateUpdateRequest(
+    val userId: String,
+    val userName: String,
+    val sleepState: String,
+    val deviceId: String
+)
+
+data class SleepStateUpdateResponse(
+    val status: String? = null,
+    val message: String? = null,
+    val error: String? = null
+)
+
 interface SleepApiService {
     
     @POST("sleep/sessions")
     suspend fun uploadSleepData(
         @Body sleepData: SleepDataUpload
     ): Response<SleepUploadResponse>
+
+    @POST("sleep/states")
+    suspend fun updateSleepState(
+        @Body request: SleepStateUpdateRequest
+    ): Response<SleepStateUpdateResponse>
 }
 
 object SleepApiClient {
