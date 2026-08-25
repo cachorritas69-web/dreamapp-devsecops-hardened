@@ -11,14 +11,17 @@ import team.dreamapp.com.presentation.controller.auth.GoogleAuthController
 object AccessManager {
     // Handler End points according to permitted roles
     fun handleAccess(ctx: Context) {
+        val permittedRoles = ctx.routeRoles()
+        // Unauthenticated routes never trigger token resolution.
+        if (Role.UNAUTHENTICATED in permittedRoles || permittedRoles.isEmpty()) return
         val bearer = ctx.header("Authorization")?.takeIf { it.startsWith("Bearer ", true) }
             ?.substringAfter(' ')?.trim()
-        (AuthTokenService.resolve(bearer) ?: GoogleAuthController.resolveFirebaseUser(bearer))
-            ?.let { ctx.userInfo = it }
+        // DreamApp tokens are resolved first; only JWT-shaped tokens are offered to Firebase.
+        val resolved = AuthTokenService.resolve(bearer)
+            ?: (if (AccessTokenShape.looksLikeFirebaseIdToken(bearer)) GoogleAuthController.resolveFirebaseUser(bearer) else null)
+        resolved?.let { ctx.userInfo = it }
         if (ctx.matchedPath() != "/api/image") ctx.refreshUserInfo()
-        val permittedRoles = ctx.routeRoles()
         when {
-            Role.UNAUTHENTICATED in permittedRoles || permittedRoles.isEmpty() -> return
             ctx.userInfo == null -> throw UnauthorizedResponse("Authentication required")
             ctx.userInfo!!.role in permittedRoles -> return
             else -> throw UnauthorizedResponse()

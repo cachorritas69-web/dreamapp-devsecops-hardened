@@ -56,18 +56,34 @@ export class ApiError extends Error {
 }
 const TOKEN_KEY = "dreamapp_session";
 export const clearSession = () => sessionStorage.removeItem(TOKEN_KEY);
+
+// Routes that must never carry the DreamApp session token. /auth/google gets
+// its Authorization exclusively from the explicit Firebase ID token header.
+const AUTH_FREE_PATHS = [
+  "/health",
+  "/auth/login",
+  "/auth/register",
+  "/auth/verify",
+  "/auth/google",
+];
+
+function isAuthFreePath(path: string): boolean {
+  const clean = path.split("?")[0];
+  return AUTH_FREE_PATHS.includes(clean);
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   let response: Response;
   const token = sessionStorage.getItem(TOKEN_KEY);
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string> | undefined),
+  };
+  if (token && !isAuthFreePath(path)) {
+    headers.Authorization = `Bearer ${token}`;
+  }
   try {
-    response = await fetch(`${API_URL}${path}`, {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...options.headers,
-      },
-    });
+    response = await fetch(`${API_URL}${path}`, { ...options, headers });
   } catch {
     throw new ApiError("No se pudo conectar con DreamApp API.", 0);
   }
@@ -76,6 +92,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     unknown
   > | null;
   if (!response.ok) {
+    // A stale DreamApp session must not survive a protected-route 401.
+    if (response.status === 401 && !isAuthFreePath(path)) {
+      clearSession();
+    }
     const message =
       typeof data?.error === "string"
         ? data.error

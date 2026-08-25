@@ -17,3 +17,4 @@ serviceAccountKey.json
 **/serviceAccountKey.json
 local.properties
 *.log
+dreamapp-web/package-lock.json

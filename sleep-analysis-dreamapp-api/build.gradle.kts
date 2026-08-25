@@ -75,6 +75,8 @@ dependencies {
     implementation("com.github.seratch:kotliquery:1.9.1") // Lightweight SQL and JDBC wrapper for Kotlin
     implementation("de.svenkubiak:jBCrypt:0.4.3") // Library for BCrypt password hashing
     testImplementation(kotlin("test"))
+    testImplementation("org.testcontainers:junit-jupiter:1.19.8")
+    testImplementation("org.testcontainers:postgresql:1.19.8")
 }
 
 tasks.test {

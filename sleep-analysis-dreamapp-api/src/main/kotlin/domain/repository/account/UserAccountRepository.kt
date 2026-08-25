@@ -9,5 +9,5 @@ interface UserAccountRepository {
     fun delete(uuid: String): String
     fun getAll(where: String): List<UserAccount>
     fun getByUUID(uuid: String): UserAccount?
-    fun userInfoBy(type: String, param: String): UserInfo
+    fun userInfoBy(type: String, param: String): UserInfo?
 }

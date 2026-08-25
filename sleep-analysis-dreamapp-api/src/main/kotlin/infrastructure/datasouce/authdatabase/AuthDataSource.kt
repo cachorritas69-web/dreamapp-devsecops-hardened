@@ -48,6 +48,7 @@ object AuthDataSource {
 
     private fun resolveConnection(): ConnectionSettings {
         val databaseUrl = System.getenv("DATABASE_URL")?.trim().orEmpty()
+            .ifBlank { System.getProperty("DATABASE_URL")?.trim().orEmpty() }
         if (databaseUrl.isBlank()) {
             return ConnectionSettings(Config.SVR_AUTH_CONF.dbURL, Config.SVR_AUTH_CONF.dbUser, Config.SVR_AUTH_CONF.dbPwd)
         }
@@ -132,6 +133,15 @@ object AuthDataSource {
                     )
                 """.trimIndent())
                 statement.executeUpdate("CREATE UNIQUE INDEX IF NOT EXISTS pending_registration_username_unique ON pending_registration (LOWER(username))")
+                statement.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS user_session (
+                        token_hash VARCHAR(64) PRIMARY KEY,
+                        user_id UUID NOT NULL REFERENCES user_account(id) ON DELETE CASCADE,
+                        role VARCHAR(20) NOT NULL,
+                        expires_at TIMESTAMPTZ NOT NULL
+                    )
+                """.trimIndent())
+                statement.executeUpdate("CREATE INDEX IF NOT EXISTS user_session_expires_idx ON user_session (expires_at)")
                 // Remove only the legacy bootstrap account. New accounts are always self-service clients.
                 statement.executeUpdate("DELETE FROM user_account WHERE LOWER(username) = 'admin' AND user_roles LIKE '%SysAdmin%'")
             }

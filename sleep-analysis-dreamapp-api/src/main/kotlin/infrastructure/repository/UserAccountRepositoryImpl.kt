@@ -1,6 +1,5 @@
 package team.dreamapp.com.infrastructure.repository
 
-import io.javalin.http.BadRequestResponse
 import io.javalin.http.InternalServerErrorResponse
 import kotliquery.Row
 import kotliquery.queryOf
@@ -121,8 +120,9 @@ class UserAccountRepositoryImpl : UserAccountRepository {
         return account
     }
 
-    override fun userInfoBy(type: String, param: String): UserInfo {
-        val where = if (type == "ID") "WHERE ID = CAST(? AS UUID)" else "WHERE USERNAME = ?"
+    override fun userInfoBy(type: String, param: String): UserInfo? {
+        // Case-insensitive lookup so "NuevoUsuario" matches the stored "nuevousuario".
+        val where = if (type == "ID") "WHERE ID = CAST(? AS UUID)" else "WHERE LOWER(USERNAME) = LOWER(?)"
         val qry = queryOf("""
             SELECT CAST(ID AS VARCHAR) AS "ID", USERNAME, FIRSTNAME, LASTNAME, USER_PASSWORD,
                 USER_ROLES, IS_ACTIVE, TO_CHAR(CURRENT_DATE, 'YYYY-MM-DD') AS "CURRENT_DATE"
@@ -137,10 +137,6 @@ class UserAccountRepositoryImpl : UserAccountRepository {
                 active = row.boolean("IS_ACTIVE"),
                 currentDate = row.string("CURRENT_DATE")
             ) }.asSingle
-        var account: UserInfo
-        sessionOf(AuthDataSource.get()).use {
-            account = it.run(qry) ?: throw BadRequestResponse("No existe esta cuenta")
-        }
-        return account
+        return sessionOf(AuthDataSource.get()).use { it.run(qry) }
     }
 }

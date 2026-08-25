@@ -71,7 +71,11 @@ object UserAccountController {
     fun getUserInfo(ctx: Context) {
         val userName = ctx.pathParam("username")
         val result = userInfoByUseCase("username", userName)
-        ctx.json(ApiResponse(success = true, data = result))
+        if (result == null) {
+            ctx.status(404).json(ApiResponse(success = false, data = null, error = "No existe esta cuenta"))
+        } else {
+            ctx.json(ApiResponse(success = true, data = result))
+        }
     }
 
 }

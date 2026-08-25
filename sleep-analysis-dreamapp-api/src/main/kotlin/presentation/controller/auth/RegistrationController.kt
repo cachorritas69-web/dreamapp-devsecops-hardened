@@ -33,7 +33,7 @@ object RegistrationController {
         if (request == null) return badRequest(ctx, "Datos de registro inválidos.")
         val firstName = request.firstName.trim().take(100)
         val lastName = request.lastName.trim().take(100)
-        val username = request.userName.trim().lowercase(Locale.ROOT)
+        val username = team.dreamapp.com.domain.services.auth.UsernamePolicy.canonical(request.userName)
         val email = request.email.trim().lowercase(Locale.ROOT)
         if (firstName.length < 2 || lastName.length < 2) return badRequest(ctx, "Escribe tu nombre y apellido.")
         if (!usernamePattern.matches(username)) return badRequest(ctx, "El usuario debe tener de 3 a 40 caracteres válidos.")
@@ -136,6 +136,7 @@ object RegistrationController {
 
     private fun hashCode(email: String, code: String): String {
         val secret = System.getenv("EMAIL_VERIFICATION_SECRET")?.takeIf { it.length >= 32 }
+            ?: System.getProperty("EMAIL_VERIFICATION_SECRET")?.takeIf { it.length >= 32 }
             ?: error("EMAIL_VERIFICATION_SECRET must contain at least 32 characters")
         return MessageDigest.getInstance("SHA-256")
             .digest("$secret:$email:$code".toByteArray(StandardCharsets.UTF_8))
