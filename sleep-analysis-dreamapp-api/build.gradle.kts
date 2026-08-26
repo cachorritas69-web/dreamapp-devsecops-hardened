@@ -46,7 +46,7 @@ dependencies {
     // =========================
     implementation("org.slf4j:slf4j-api:2.0.13") // Logging API
     implementation("org.slf4j:slf4j-simple:2.0.16") // Simple SLF4J backend (optional if using logback)
-    runtimeOnly("ch.qos.logback:logback-classic:1.4.14") // Logback backend for SLF4J
+    runtimeOnly("ch.qos.logback:logback-classic:1.6.3") // Logback backend for SLF4J
 
     // =========================
     // JSON Serialization
@@ -81,7 +81,7 @@ dependencies {
     implementation("com.github.seratch:kotliquery:1.9.1") // Lightweight SQL and JDBC wrapper for Kotlin
     implementation("de.svenkubiak:jBCrypt:0.4.3") // Library for BCrypt password hashing
     testImplementation(kotlin("test"))
-    testImplementation("ch.qos.logback:logback-classic:1.4.14")
+    testImplementation("ch.qos.logback:logback-classic:1.6.3")
     testImplementation("org.testcontainers:junit-jupiter:1.19.8")
     testImplementation("org.testcontainers:postgresql:1.19.8")
 }
