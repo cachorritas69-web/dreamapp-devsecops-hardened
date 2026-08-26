@@ -22,6 +22,12 @@ tasks.shadowJar {
     }
 }
 
+// Shadow 8.1.1 does not declare its output usage to the distribution tasks.
+tasks.distZip { dependsOn(tasks.shadowJar) }
+tasks.distTar { dependsOn(tasks.shadowJar) }
+tasks.startScripts { dependsOn(tasks.shadowJar) }
+tasks.startShadowScripts { dependsOn(tasks.jar) }
+
 group = "team.dreamapp.com"
 version = "1.0-SNAPSHOT"
 
@@ -75,12 +81,15 @@ dependencies {
     implementation("com.github.seratch:kotliquery:1.9.1") // Lightweight SQL and JDBC wrapper for Kotlin
     implementation("de.svenkubiak:jBCrypt:0.4.3") // Library for BCrypt password hashing
     testImplementation(kotlin("test"))
+    testImplementation("ch.qos.logback:logback-classic:1.4.14")
     testImplementation("org.testcontainers:junit-jupiter:1.19.8")
     testImplementation("org.testcontainers:postgresql:1.19.8")
 }
 
 tasks.test {
     useJUnitPlatform()
+    // Ensure Logback is the active SLF4J backend so tests can capture log events.
+    jvmArgs("-Dslf4j.provider=ch.qos.logback.classic.spi.LogbackServiceProvider")
 }
 
 kotlin {

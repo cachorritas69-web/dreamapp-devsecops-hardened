@@ -1,10 +1,12 @@
 package team.dreamapp.com.infrastructure.di
 
 import team.dreamapp.com.domain.repository.account.UserAccountRepository
+import team.dreamapp.com.domain.repository.sleep.SleepMeasurementRepository
 import team.dreamapp.com.domain.repository.sleep.SleepRepository
 import team.dreamapp.com.domain.repository.users.UserRepository
 import team.dreamapp.com.infrastructure.config.Config
 import team.dreamapp.com.infrastructure.repository.UserAccountRepositoryImpl
+import team.dreamapp.com.infrastructure.repository.sleep.SleepMeasurementRepositoryImpl
 import team.dreamapp.com.infrastructure.repository.sleep.SleepRepositoryImpl
 import team.dreamapp.com.infrastructure.repository.users.UserRepositoryImpl
 
@@ -25,4 +27,7 @@ object RepositoryProvider {
 
     // Stats Provider
     val sleepRepository: SleepRepository = SleepRepositoryImpl()
+
+    // Wearable measurements Provider
+    val sleepMeasurementRepository: SleepMeasurementRepository = SleepMeasurementRepositoryImpl()
 }

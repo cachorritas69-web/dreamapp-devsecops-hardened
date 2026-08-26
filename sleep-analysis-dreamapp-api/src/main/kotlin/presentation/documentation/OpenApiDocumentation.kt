@@ -98,6 +98,41 @@ object OpenApiDocumentation {
                     "post" to operation("Registrar un cambio de estado de sueño", "Sueño", bodySchema = mapOf("type" to "object"))
                 ),
                 "/sleep/connections" to mapOf("get" to operation("Consultar conexiones del monitor", "Sueño")),
+                "/sleep/measurements/batch" to mapOf("post" to operation(
+                    "Sincronizar un lote de mediciones del wearable (idempotente)", "Sueño",
+                    bodySchema = mapOf(
+                        "type" to "object",
+                        "required" to listOf("batchId", "deviceId", "measurements"),
+                        "properties" to mapOf(
+                            "batchId" to mapOf("type" to "string", "format" to "uuid"),
+                            "deviceId" to mapOf("type" to "string", "minLength" to 1, "maxLength" to 160),
+                            "measurements" to mapOf(
+                                "type" to "array", "minItems" to 1, "maxItems" to 500,
+                                "items" to mapOf(
+                                    "type" to "object",
+                                    "required" to listOf("clientMeasurementId", "measuredAt", "heartRateBpm", "sleepPhase"),
+                                    "properties" to mapOf(
+                                        "clientMeasurementId" to mapOf("type" to "string", "minLength" to 1, "maxLength" to 100),
+                                        "measuredAt" to mapOf("type" to "string", "format" to "date-time"),
+                                        "heartRateBpm" to mapOf("type" to "integer", "minimum" to 20, "maximum" to 250),
+                                        "sleepPhase" to mapOf("type" to "string", "enum" to listOf("AWAKE", "LIGHT", "DEEP", "REM")),
+                                        "hrvRmssd" to mapOf("type" to "number", "minimum" to 0, "maximum" to 1000),
+                                        "hrvSdnn" to mapOf("type" to "number", "minimum" to 0, "maximum" to 1000),
+                                        "movement" to mapOf("type" to "number", "minimum" to 0)
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    success = "Mediciones sincronizadas."
+                )),
+                "/sleep/measurements/recent" to mapOf("get" to operation(
+                    "Consultar las mediciones recientes del usuario actual", "Sueño",
+                    parameters = listOf(mapOf<String, Any>(
+                        "name" to "limit", "in" to "query", "required" to false,
+                        "schema" to mapOf("type" to "integer", "minimum" to 1, "maximum" to 500, "default" to 100)
+                    ))
+                )),
                 "/ai/recommendation" to mapOf("get" to operation("Generar recomendación personalizada", "IA")),
                 "/ai/predictions-next-month-efficiency" to mapOf("get" to operation("Predecir eficiencia del próximo mes", "IA")),
                 "/subscription" to mapOf(

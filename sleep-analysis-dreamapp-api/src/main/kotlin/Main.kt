@@ -16,6 +16,7 @@ import team.dreamapp.com.presentation.controller.auth.AuthController
 import team.dreamapp.com.presentation.controller.auth.RegistrationController
 import team.dreamapp.com.presentation.controller.auth.GoogleAuthController
 import team.dreamapp.com.presentation.controller.sleep.SleepAiController
+import team.dreamapp.com.presentation.controller.sleep.SleepMeasurementController
 import team.dreamapp.com.presentation.controller.sleep.SleepStatsController
 import team.dreamapp.com.presentation.controller.sleep.SleepStateController
 import team.dreamapp.com.presentation.controller.users.UserController
@@ -145,6 +146,9 @@ fun main() {
                 get("states", SleepStateController::getCurrentSleepStates, Role.SYSADMIN, Role.ADMIN)
                 post("states", SleepStateController::changeSleepState, Role.SYSADMIN, Role.ADMIN, Role.CLIENT)
                 get("connections", SleepStateController::getConnectionStats, Role.SYSADMIN, Role.ADMIN)
+                // Wearable measurement sync endpoints
+                post("measurements/batch", SleepMeasurementController::uploadBatch, Role.CLIENT)
+                get("measurements/recent", SleepMeasurementController::getRecent, Role.CLIENT)
             }
             // AI
             path("ai") {

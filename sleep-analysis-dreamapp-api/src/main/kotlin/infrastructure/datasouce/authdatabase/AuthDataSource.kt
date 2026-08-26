@@ -120,6 +120,27 @@ object AuthDataSource {
                     )
                 """.trimIndent())
                 statement.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS sleep_measurement (
+                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                        user_id UUID NOT NULL REFERENCES user_account(id) ON DELETE CASCADE,
+                        batch_id UUID NOT NULL,
+                        client_measurement_id VARCHAR(100) NOT NULL,
+                        device_id VARCHAR(160) NOT NULL,
+                        measured_at TIMESTAMPTZ NOT NULL,
+                        heart_rate_bpm INTEGER NOT NULL
+                            CHECK (heart_rate_bpm BETWEEN 20 AND 250),
+                        sleep_phase VARCHAR(10) NOT NULL
+                            CHECK (sleep_phase IN ('AWAKE', 'LIGHT', 'DEEP', 'REM')),
+                        hrv_rmssd DOUBLE PRECISION,
+                        hrv_sdnn DOUBLE PRECISION,
+                        movement DOUBLE PRECISION,
+                        source VARCHAR(30) NOT NULL DEFAULT 'WEARABLE',
+                        received_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE (user_id, device_id, client_measurement_id)
+                    )
+                """.trimIndent())
+                statement.executeUpdate("CREATE INDEX IF NOT EXISTS sleep_measurement_user_time_idx ON sleep_measurement (user_id, measured_at DESC)")
+                statement.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS pending_registration (
                         email VARCHAR(254) PRIMARY KEY,
                         username VARCHAR(80) NOT NULL,

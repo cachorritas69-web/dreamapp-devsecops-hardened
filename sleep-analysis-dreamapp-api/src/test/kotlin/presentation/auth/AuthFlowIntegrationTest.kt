@@ -11,6 +11,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.mindrot.jbcrypt.BCrypt
 import org.testcontainers.DockerClientFactory
@@ -62,7 +63,11 @@ class AuthFlowIntegrationTest {
     fun setUp() {
         assumeTrue(dockerAvailable, "Docker unavailable: integration tests skipped")
         postgres.start()
-        System.setProperty("DATABASE_URL", postgres.jdbcUrl.removePrefix("jdbc:"))
+        // DATABASE_URL must carry credentials; Testcontainers' jdbcUrl omits them.
+        System.setProperty(
+            "DATABASE_URL",
+            "postgresql://${postgres.username}:${postgres.password}@${postgres.host}:${postgres.getMappedPort(5432)}/${postgres.databaseName}"
+        )
         System.setProperty("EMAIL_VERIFICATION_SECRET", SECRET)
         AuthDataSource.init()
         app = Javalin.create { config ->
@@ -85,6 +90,18 @@ class AuthFlowIntegrationTest {
     fun tearDown() {
         if (::app.isInitialized) app.stop()
         if (dockerAvailable) postgres.stop()
+    }
+
+    /** Each test starts from a clean registration state; the container database persists across methods. */
+    @BeforeEach
+    fun cleanRegistrationState() {
+        if (!dockerAvailable || !AuthDataSource.isConnectionHealthy()) return
+        AuthDataSource.get().connection.use { connection ->
+            connection.createStatement().use {
+                it.executeUpdate("DELETE FROM pending_registration WHERE email LIKE '%@example.com'")
+                it.executeUpdate("DELETE FROM user_account WHERE email LIKE '%@example.com'")
+            }
+        }
     }
 
     /** Seeds pending_registration exactly as POST /auth/register would, minus the email delivery. */
