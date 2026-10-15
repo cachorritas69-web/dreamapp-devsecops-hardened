@@ -54,7 +54,7 @@ room = "2.7.2" # SQLite database abstraction layer with support for LiveData, Fl
 # =======================
 
 retrofit = "3.0.0" # Type-safe HTTP client for networking in Android.
-converterGson = "2.9.0" # Retrofit converter for JSON using Gson.
+converterGson = "3.0.0" # Retrofit converter for JSON using Gson.
 
 # =======================
 # Image Loading
